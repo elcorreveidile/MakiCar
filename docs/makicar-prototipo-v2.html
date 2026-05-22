@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MakiCar · Prototipo v2</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,600&display=swap');
+  :root{--noche:#0A0E1A;--noche-2:#0D1117;--carta:#141A28;--ambar:#FFB627;--ruta:#2BB6A4;
+        --blanco:#F4F1EA;--gris:#8A93A6;--linea:#232C3F;--rojo:#E5544B;--violeta:#9b8cff;}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  body{background:#05070d;font-family:'Sora',sans-serif;color:var(--blanco);
+       display:flex;gap:40px;justify-content:center;flex-wrap:wrap;padding:40px 16px;}
+  .stage{display:flex;flex-direction:column;align-items:center;gap:14px;}
+  .stage-label{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--ambar);font-weight:700;}
+  .phone{width:360px;height:760px;background:var(--noche);border-radius:38px;border:1px solid var(--linea);
+         box-shadow:0 30px 70px rgba(0,0,0,.6);overflow:hidden;position:relative;display:flex;flex-direction:column;}
+  .notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:130px;height:26px;background:#05070d;border-radius:0 0 16px 16px;z-index:50;}
+  .screen{flex:1;overflow-y:auto;display:none;flex-direction:column;}
+  .screen.active{display:flex;}
+  .screen::-webkit-scrollbar{display:none;}
+  .topbar{padding:42px 20px 14px;display:flex;align-items:center;justify-content:space-between;
+          border-bottom:1px solid var(--linea);background:var(--noche-2);position:sticky;top:0;z-index:10;}
+  .topbar .wm{font-weight:800;font-size:19px;letter-spacing:-.02em;}
+  .topbar .wm span{color:var(--ambar);}
+  .topbar .who{font-size:11px;color:var(--gris);}
+  .back{font-size:13px;color:var(--ambar);font-weight:600;cursor:pointer;background:none;border:none;font-family:inherit;}
+  .body{padding:20px;flex:1;}
+  h2{font-family:'Fraunces',serif;font-size:23px;font-weight:600;margin-bottom:4px;}
+  .lead{color:var(--gris);font-size:13px;margin-bottom:18px;}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:12px;color:var(--gris);margin-bottom:6px;}
+  .field input,.field select{width:100%;background:var(--noche-2);border:1px solid var(--linea);border-radius:12px;
+        padding:13px 14px;color:var(--blanco);font-family:inherit;font-size:14px;}
+  .field input:focus,.field select:focus{outline:none;border-color:var(--ambar);}
+  .pricebox{background:var(--carta);border:1px solid var(--linea);border-radius:14px;padding:16px;margin-bottom:16px;}
+  .pricebox .row{display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:5px 0;color:var(--gris);}
+  .pricebox .row b{color:var(--blanco);}
+  .pricebox .total{border-top:1px solid var(--linea);margin-top:8px;padding-top:12px;font-size:15px;}
+  .pricebox .total b{font-family:'Fraunces',serif;font-size:24px;color:var(--ambar);}
+  .pricebox.err{color:var(--rojo);text-align:center;font-size:13px;}
+  .tag{display:inline-block;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;letter-spacing:.04em;}
+  .tag.day{color:var(--ambar);background:rgba(255,182,39,.14);}
+  .tag.night{color:var(--violeta);background:rgba(155,140,255,.14);}
+  .pay{display:flex;gap:10px;margin:6px 0 8px;}
+  .pay .opt{flex:1;border:1px solid var(--linea);border-radius:13px;padding:13px;text-align:center;cursor:pointer;transition:.15s;}
+  .pay .opt.sel{border-color:var(--ambar);background:rgba(255,182,39,.08);}
+  .pay .opt .t{font-weight:600;font-size:14px;margin-bottom:3px;}
+  .pay .opt .d{font-size:11px;color:var(--gris);line-height:1.4;}
+  .note{font-size:12px;line-height:1.5;padding:12px 14px;border-radius:12px;margin-bottom:16px;}
+  .note.amber{background:rgba(255,182,39,.08);border:1px solid rgba(255,182,39,.25);color:#ffd98a;}
+  .note.teal{background:rgba(43,182,164,.08);border:1px solid rgba(43,182,164,.25);color:#9fe7dc;}
+  .check{display:flex;align-items:center;gap:10px;background:var(--noche-2);border:1px solid var(--linea);
+         border-radius:12px;padding:12px 14px;margin-bottom:14px;cursor:pointer;}
+  .check .bx{width:20px;height:20px;border-radius:6px;border:2px solid var(--gris);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--noche);}
+  .check.on .bx{background:var(--ambar);border-color:var(--ambar);}
+  .check .tx{font-size:13px;}.check .tx small{display:block;color:var(--gris);font-size:11px;}
+  .btn{width:100%;background:var(--ambar);color:#0A0E1A;border:none;border-radius:13px;padding:15px;
+       font-family:inherit;font-weight:700;font-size:15px;cursor:pointer;transition:.15s;}
+  .btn:active{transform:scale(.98);}
+  .btn:disabled{opacity:.4;}
+  .btn.ghost{background:transparent;color:var(--gris);border:1px solid var(--linea);margin-top:10px;}
+  .success{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px;}
+  .success .ring{width:84px;height:84px;border-radius:50%;border:3px solid var(--ambar);display:flex;align-items:center;justify-content:center;font-size:38px;color:var(--ambar);margin-bottom:24px;}
+  .success p{color:var(--gris);font-size:14px;line-height:1.6;margin:10px 0 28px;}
+  .tabs{display:flex;border-top:1px solid var(--linea);background:var(--noche-2);}
+  .tab{flex:1;padding:12px 0 16px;text-align:center;font-size:10px;color:var(--gris);cursor:pointer;}
+  .tab.on{color:var(--ambar);}.tab .ic{font-size:19px;display:block;margin-bottom:3px;}
+  .kpi{display:flex;gap:10px;margin-bottom:18px;}
+  .kpi .box{flex:1;background:var(--carta);border:1px solid var(--linea);border-radius:14px;padding:13px;}
+  .kpi .box .n{font-family:'Fraunces',serif;font-size:24px;font-weight:600;}
+  .kpi .box .l{font-size:10px;color:var(--gris);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;}
+  .req{background:var(--carta);border:1px solid var(--linea);border-radius:14px;padding:16px;margin-bottom:12px;}
+  .req .h{font-weight:600;font-size:14px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;}
+  .req .det{font-size:12px;color:var(--gris);line-height:1.6;margin-bottom:12px;}
+  .req .acts{display:flex;gap:8px;}
+  .mini{flex:1;padding:10px;border-radius:10px;font-family:inherit;font-weight:600;font-size:13px;border:none;cursor:pointer;}
+  .mini.ok{background:var(--ruta);color:#04201c;}.mini.no{background:transparent;color:var(--gris);border:1px solid var(--linea);}
+  .pax{background:var(--carta);border:1px solid var(--linea);border-radius:14px;padding:14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;}
+  .pax .nm{font-weight:600;font-size:14px;}.pax .pk{font-size:11px;color:var(--gris);margin-top:3px;line-height:1.5;}
+  .badge{font-size:10px;font-weight:700;padding:4px 9px;border-radius:20px;}
+  .badge.card{color:var(--ruta);background:rgba(43,182,164,.14);}
+  .badge.cash{color:var(--ambar);background:rgba(255,182,39,.14);}
+</style>
+</head>
+<body>
+
+<!-- ===== CLIENTE ===== -->
+<div class="stage">
+  <div class="stage-label">Cliente</div>
+  <div class="phone" id="ph-cli">
+    <div class="notch"></div>
+
+    <div class="screen active" id="c-home">
+      <div class="topbar"><div class="wm">Maki<span>Car</span></div><div class="who">Hola, Lucía</div></div>
+      <div class="body">
+        <h2>Reservar plaza</h2>
+        <p class="lead">Ruta Granada · Málaga · Marbella · Estepona · Algeciras</p>
+
+        <div class="field"><label>Subo en</label>
+          <select id="orig" onchange="calc()">
+            <option value="Granada">Granada</option><option value="Málaga">Málaga</option>
+            <option value="Marbella">Marbella</option><option value="Estepona">Estepona</option>
+          </select></div>
+        <div class="field"><label>Bajo en</label>
+          <select id="dest" onchange="calc()">
+            <option value="Málaga">Málaga</option><option value="Marbella">Marbella</option>
+            <option value="Estepona">Estepona</option><option value="Algeciras" selected>Algeciras</option>
+          </select></div>
+        <div class="field"><label>Día y hora</label><input id="hora" value="2026-05-25T22:30" type="datetime-local" onchange="calc()"></div>
+
+        <div class="check" id="ck-mal" onclick="toggleMal()">
+          <div class="bx">✓</div>
+          <div class="tx">Llevo maleta grande (no cabina)<small>+5 € si cabe en maletero · plaza completa si ocupa asiento</small></div>
+        </div>
+        <div class="field"><label>¿Viajas con mascota? 🐾 (avisa siempre)</label>
+          <select id="petsel" onchange="setPet()">
+            <option value="no">No llevo mascota</option>
+            <option value="feet">A los pies / regazo (+5 €)</option>
+            <option value="seat">Ocupa asiento (plaza completa)</option>
+          </select></div>
+
+        <div class="note teal" style="margin-top:2px;">🚭 Prohibido fumar &nbsp;·&nbsp; 🐾 Se admiten mascotas (avisando antes)</div>
+
+        <div class="pricebox" id="pbox">
+          <div class="row">Tramo <b id="tramo">Granada → Algeciras</b></div>
+          <div class="row">Tarifa <span id="tarifa"><span class="tag night">NOCHE · desde 21:00</span></span></div>
+          <div class="row" id="row-mal" style="display:none;">Suplemento maleta <b>+5 €</b></div>
+          <div class="row total"><span>Total a pagar a Karim</span><b id="total">30 €</b></div>
+        </div>
+
+        <button class="btn" onclick="go('ph-cli','c-pay')">Continuar</button>
+        <button class="btn ghost" onclick="go('ph-cli','c-adhoc')">Servicio especial (aeropuerto, etc.) → consultar</button>
+      </div>
+      <div class="tabs"><div class="tab on"><span class="ic">⌂</span>Reservar</div>
+        <div class="tab" onclick="go('ph-cli','c-adhoc')"><span class="ic">＋</span>A medida</div>
+        <div class="tab"><span class="ic">≡</span>Mis viajes</div></div>
+    </div>
+
+    <div class="screen" id="c-pay">
+      <div class="topbar"><button class="back" onclick="go('ph-cli','c-home')">‹ Volver</button><div class="who">Pago</div></div>
+      <div class="body">
+        <h2>¿Cómo pagas?</h2>
+        <p class="lead" id="resumen">Granada → Algeciras · 30 €</p>
+        <div class="pay">
+          <div class="opt sel" id="op-card" onclick="pick('card')"><div class="t">Tarjeta</div><div class="d">Pre-autoriza 15 € al reservar</div></div>
+          <div class="opt" id="op-cash" onclick="pick('cash')"><div class="t">Efectivo</div><div class="d">Pagas a Karim al subir</div></div>
+        </div>
+        <div class="note amber" id="n-card">Se pre-autorizan <b>15 €</b> en tu tarjeta como señal. <b>No se cobra ahora.</b> El resto y el total se ajustan cuando Karim confirma el viaje.</div>
+        <div class="note teal" id="n-cash" style="display:none;">Reservarás en efectivo. Tu plaza no queda garantizada hasta que Karim la confirme.</div>
+        <div class="note teal">⏳ Toda reserva queda <b>pendiente de aprobación</b>. Karim revisa y confirma desde su panel; recibirás un aviso.</div>
+        <button class="btn" onclick="go('ph-cli','c-ok')">Enviar solicitud</button>
+      </div>
+    </div>
+
+    <div class="screen" id="c-adhoc">
+      <div class="topbar"><button class="back" onclick="go('ph-cli','c-home')">‹ Volver</button><div class="who">A medida</div></div>
+      <div class="body">
+        <h2>Servicio especial</h2>
+        <p class="lead">Aeropuerto, horarios fuera de ruta… Karim te dice precio y confirma.</p>
+        <div class="field"><label>Origen</label><input value="Motril, paseo marítimo"></div>
+        <div class="field"><label>Destino</label><input value="Aeropuerto de Málaga (AGP)"></div>
+        <div class="field"><label>Día y hora</label><input value="2026-05-26T05:00" type="datetime-local"></div>
+        <div class="field"><label>Pasajeros</label><select><option>1</option><option>2</option><option>3</option><option>4</option></select></div>
+        <button class="btn" onclick="go('ph-cli','c-ok')">Enviar petición a Karim</button>
+      </div>
+    </div>
+
+    <div class="screen" id="c-ok">
+      <div class="topbar"><div class="wm">Maki<span>Car</span></div><div class="who"></div></div>
+      <div class="success">
+        <div class="ring">⏳</div>
+        <h2>Solicitud enviada</h2>
+        <p>Tu reserva está <b>pendiente de la aprobación de Karim</b>. Te avisamos en cuanto la confirme. Si pagaste con tarjeta, la pre-autorización de 15 € se libera si no la acepta.</p>
+        <button class="btn" onclick="go('ph-cli','c-home')">Entendido</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== KARIM ===== -->
+<div class="stage">
+  <div class="stage-label">Panel de Karim</div>
+  <div class="phone" id="ph-kar">
+    <div class="notch"></div>
+
+    <div class="screen active" id="k-req">
+      <div class="topbar"><div class="wm">Maki<span>Car</span></div><div class="who">Panel · Karim</div></div>
+      <div class="body">
+        <h2>Por aprobar</h2>
+        <p class="lead">3 solicitudes esperando tu OK</p>
+
+        <div class="req">
+          <div class="h">Granada → Algeciras <span class="badge card">TARJETA</span></div>
+          <div class="det">Dom 25 may · 22:30 (noche) · Lucía R.<br>↑ C/ Recogidas 12 · 30 € · 🐾 con mascota (+5 €)</div>
+          <div class="acts"><button class="mini ok" onclick="go('ph-kar','k-home')">Confirmar plaza</button><button class="mini no" onclick="go('ph-kar','k-home')">Rechazar</button></div>
+        </div>
+        <div class="req">
+          <div class="h">Málaga → Estepona <span class="badge cash">EFECTIVO</span></div>
+          <div class="det">Lun 26 may · 11:00 (día) · Manuel T.<br>↑ AGP T2 · 13 € + maleta 5 € = 18 €</div>
+          <div class="acts"><button class="mini ok" onclick="go('ph-kar','k-home')">Confirmar plaza</button><button class="mini no" onclick="go('ph-kar','k-home')">Rechazar</button></div>
+        </div>
+        <div class="req">
+          <div class="h">Especial · Motril → AGP <span class="badge card">TARJETA</span></div>
+          <div class="det">Lun 26 may · 05:00 · 1 pax · Said B.<br>Fuera de ruta — pon precio:</div>
+          <div class="field"><input value="45 €"></div>
+          <div class="acts"><button class="mini ok" onclick="go('ph-kar','k-home')">Aceptar y enviar precio</button><button class="mini no" onclick="go('ph-kar','k-home')">Rechazar</button></div>
+        </div>
+      </div>
+      <div class="tabs"><div class="tab on"><span class="ic">✦</span>Aprobar</div>
+        <div class="tab" onclick="go('ph-kar','k-home')"><span class="ic">⌂</span>Hoy</div>
+        <div class="tab"><span class="ic">＋</span>Publicar</div>
+        <div class="tab"><span class="ic">≡</span>Clientes</div></div>
+    </div>
+
+    <div class="screen" id="k-home">
+      <div class="topbar"><button class="back" onclick="go('ph-kar','k-req')">‹ Aprobar</button><div class="who">Hoy · Dom 25</div></div>
+      <div class="body">
+        <h2>Hoja de ruta</h2>
+        <p class="lead">Granada → Algeciras · salida 22:00 · tarifa noche</p>
+        <div class="kpi">
+          <div class="box"><div class="n">3</div><div class="l">Pax</div></div>
+          <div class="box"><div class="n">75€</div><div class="l">Caja</div></div>
+          <div class="box"><div class="n">1</div><div class="l">Libre</div></div>
+        </div>
+        <div class="pax"><div><div class="nm">Lucía R.</div><div class="pk">↑ C/ Recogidas 12 · ↓ Algeciras · 30 €</div></div><span class="badge card">TARJETA ✓</span></div>
+        <div class="pax"><div><div class="nm">Said B.</div><div class="pk">↑ Loja · ↓ Estepona · 24 € + maleta</div></div><span class="badge cash">EFECTIVO</span></div>
+        <div class="pax"><div><div class="nm">Manuel T.</div><div class="pk">↑ Málaga AGP · ↓ Algeciras · 20 €</div></div><span class="badge card">TARJETA ✓</span></div>
+      </div>
+      <div class="tabs"><div class="tab" onclick="go('ph-kar','k-req')"><span class="ic">✦</span>Aprobar</div>
+        <div class="tab on"><span class="ic">⌂</span>Hoy</div>
+        <div class="tab"><span class="ic">＋</span>Publicar</div>
+        <div class="tab"><span class="ic">≡</span>Clientes</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // tabla de tramos: precios [dia, noche]; null = sin servicio
+  const T = {
+    "Granada-Málaga":[15,20],"Granada-Marbella":[18,22],"Granada-Estepona":[20,24],"Granada-Algeciras":[25,30],
+    "Málaga-Marbella":[10,15],"Málaga-Estepona":[13,18],"Málaga-Algeciras":[15,20],
+    "Marbella-Estepona":null,"Marbella-Algeciras":[12,15],
+    "Estepona-Algeciras":[15,18]
+  };
+  const ORDER = ["Granada","Málaga","Marbella","Estepona","Algeciras"];
+  let maleta=false, pet='no', pago='card';
+
+  function calc(){
+    const o=document.getElementById('orig').value, d=document.getElementById('dest').value;
+    const box=document.getElementById('pbox'), btn=box.nextElementSibling;
+    // validar orden
+    if(ORDER.indexOf(o)>=ORDER.indexOf(d)){ box.innerHTML='<div class="err">Elige un destino posterior al origen.</div>'; btn.disabled=true; return; }
+    const key=o+"-"+d, price=T[key];
+    if(!price){ box.innerHTML='<div class="err">Sin servicio en este tramo ('+o+' → '+d+').</div>'; btn.disabled=true; return; }
+    btn.disabled=false;
+    const h=new Date(document.getElementById('hora').value).getHours();
+    const night = h>=21 || h<6;
+    let base = night?price[1]:price[0];
+    let petCost = pet==='feet'?5 : pet==='seat'?base : 0;
+    let total = base + (maleta?5:0) + petCost;
+    box.innerHTML =
+      '<div class="row">Tramo <b>'+o+' → '+d+'</b></div>'+
+      '<div class="row">Tarifa <span>'+(night?'<span class="tag night">NOCHE · 21:00–6:00</span>':'<span class="tag day">DÍA</span>')+' &nbsp;'+base+' €</span></div>'+
+      (maleta?'<div class="row">Suplemento maleta <b>+5 €</b></div>':'')+
+      (pet==='feet'?'<div class="row">Mascota (a los pies) <b>+5 €</b></div>':'')+
+      (pet==='seat'?'<div class="row">Mascota (plaza completa) <b>+'+base+' €</b></div>':'')+
+      '<div class="row total"><span>Total a pagar a Karim</span><b>'+total+' €</b></div>';
+    document.getElementById('resumen') && (document.getElementById('resumen').textContent = o+' → '+d+' · '+total+' €');
+  }
+  function toggleMal(){ maleta=!maleta; document.getElementById('ck-mal').classList.toggle('on',maleta); calc(); }
+  function setPet(){ pet=document.getElementById('petsel').value; calc(); }
+  function pick(w){ pago=w;
+    document.getElementById('op-card').classList.toggle('sel',w==='card');
+    document.getElementById('op-cash').classList.toggle('sel',w==='cash');
+    document.getElementById('n-card').style.display = w==='card'?'block':'none';
+    document.getElementById('n-cash').style.display = w==='cash'?'block':'none';
+  }
+  function go(phone,id){
+    const ph=document.getElementById(phone);
+    ph.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    ph.querySelector('#'+id).classList.add('active');
+    ph.querySelector('.screen.active').scrollTop=0;
+    if(id==='c-pay') calc();
+  }
+  document.getElementById('ck-mal').classList.remove('on');
+  calc();
+</script>
+</body>
+</html>
