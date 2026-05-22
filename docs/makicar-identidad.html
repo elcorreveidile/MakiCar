@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MakiCar · Identidad visual</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,600&display=swap');
+
+  :root{
+    --noche:#0A0E1A;
+    --noche-2:#0D1117;
+    --carta:#141A28;
+    --ambar:#FFB627;
+    --ambar-2:#F5A623;
+    --ruta:#2BB6A4;      /* cian apagado para estados "en ruta" */
+    --blanco:#F4F1EA;
+    --gris:#8A93A6;
+    --linea:#232C3F;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    background:var(--noche);
+    color:var(--blanco);
+    font-family:'Sora',sans-serif;
+    line-height:1.5;
+    padding:48px 24px 80px;
+    background-image:radial-gradient(circle at 20% 0%, rgba(255,182,39,.06), transparent 45%),
+                     radial-gradient(circle at 90% 30%, rgba(43,182,164,.05), transparent 40%);
+  }
+  .wrap{max-width:880px;margin:0 auto;}
+  .eyebrow{font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:var(--ambar);font-weight:700;}
+  h1{font-family:'Fraunces',serif;font-size:46px;font-weight:600;margin:8px 0 4px;letter-spacing:-.01em;}
+  .sub{color:var(--gris);font-size:15px;margin-bottom:48px;}
+  section{background:var(--noche-2);border:1px solid var(--linea);border-radius:18px;padding:32px;margin-bottom:24px;}
+  h2{font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--gris);font-weight:700;margin-bottom:24px;}
+
+  /* ---- LOGO PRINCIPAL ---- */
+  .logo-hero{display:flex;align-items:center;gap:22px;flex-wrap:wrap;}
+  .wordmark{font-family:'Sora',sans-serif;font-weight:800;font-size:42px;letter-spacing:-.02em;}
+  .wordmark .car{color:var(--ambar);}
+  .logo-variants{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-top:28px;}
+  .chip{border:1px solid var(--linea);border-radius:14px;padding:24px;display:flex;flex-direction:column;align-items:center;gap:14px;}
+  .chip.light{background:var(--blanco);}
+  .chip .label{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--gris);}
+  .chip.light .label{color:#5a6172;}
+
+  /* ---- PALETA ---- */
+  .palette{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:14px;}
+  .sw{border-radius:14px;overflow:hidden;border:1px solid var(--linea);}
+  .sw .color{height:84px;}
+  .sw .meta{padding:12px;font-size:12px;}
+  .sw .meta b{display:block;font-size:13px;margin-bottom:2px;}
+  .sw .meta span{color:var(--gris);font-family:monospace;}
+
+  /* ---- TIPO ---- */
+  .type-row{border-bottom:1px solid var(--linea);padding:18px 0;}
+  .type-row:last-child{border-bottom:none;}
+  .type-row .name{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--gris);margin-bottom:6px;}
+  .display-sample{font-family:'Fraunces',serif;font-size:34px;font-weight:600;}
+  .body-sample{font-family:'Sora',sans-serif;font-size:18px;}
+
+  /* ---- ICONO PWA ---- */
+  .pwa-row{display:flex;gap:24px;align-items:flex-end;flex-wrap:wrap;}
+  .pwa-icon{width:120px;height:120px;border-radius:27px;background:var(--noche);border:1px solid var(--linea);
+            box-shadow:0 18px 40px rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;}
+  .pwa-icon.sm{width:64px;height:64px;border-radius:15px;}
+  .pwa-icon.xs{width:40px;height:40px;border-radius:9px;}
+  .caption{color:var(--gris);font-size:13px;margin-top:14px;}
+  .concepto{color:var(--gris);font-size:14px;line-height:1.7;}
+  .concepto b{color:var(--blanco);font-weight:600;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <p class="eyebrow">Identidad visual · v1</p>
+  <h1>MakiCar</h1>
+  <p class="sub">Granada — Algeciras · transporte de pasajeros puerta a puerta</p>
+
+  <!-- LOGO -->
+  <section>
+    <h2>Logotipo</h2>
+    <div class="logo-hero">
+      <!-- isotipo: la M dibujada como una ruta con paradas -->
+      <svg width="92" height="92" viewBox="0 0 92 92" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="92" height="92" rx="20" fill="#0A0E1A" stroke="#232C3F"/>
+        <!-- ruta en forma de M -->
+        <path d="M20 66 L20 30 L46 56 L72 30 L72 66" stroke="#FFB627" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- paradas intermedias -->
+        <circle cx="20" cy="30" r="6.5" fill="#0A0E1A" stroke="#FFB627" stroke-width="4"/>
+        <circle cx="72" cy="30" r="6.5" fill="#0A0E1A" stroke="#FFB627" stroke-width="4"/>
+        <circle cx="46" cy="56" r="5" fill="#2BB6A4"/>
+      </svg>
+      <div class="wordmark">Maki<span class="car">Car</span></div>
+    </div>
+
+    <div class="logo-variants">
+      <div class="chip">
+        <svg width="64" height="64" viewBox="0 0 92 92" fill="none"><rect width="92" height="92" rx="20" fill="#0A0E1A" stroke="#232C3F"/><path d="M20 66 L20 30 L46 56 L72 30 L72 66" stroke="#FFB627" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="20" cy="30" r="6.5" fill="#0A0E1A" stroke="#FFB627" stroke-width="4"/><circle cx="72" cy="30" r="6.5" fill="#0A0E1A" stroke="#FFB627" stroke-width="4"/><circle cx="46" cy="56" r="5" fill="#2BB6A4"/></svg>
+        <span class="label">Isotipo / favicon</span>
+      </div>
+      <div class="chip">
+        <div class="wordmark" style="font-size:26px;">Maki<span class="car">Car</span></div>
+        <span class="label">Sobre fondo oscuro</span>
+      </div>
+      <div class="chip light">
+        <div class="wordmark" style="font-size:26px;color:#0A0E1A;">Maki<span style="color:#F5A623;">Car</span></div>
+        <span class="label">Sobre fondo claro</span>
+      </div>
+    </div>
+
+    <p class="concepto" style="margin-top:26px;">
+      <b>El concepto:</b> el isotipo es una <b>línea de ruta</b> que dibuja la inicial <b>M</b>. Los dos vértices superiores son las <b>cabeceras</b> (Granada y Algeciras), marcados como paradas de mapa; el punto cian del centro es una <b>parada intermedia</b> — exactamente lo que define a MakiCar frente a un trayecto directo. El símbolo cuenta el negocio en un golpe de vista y funciona igual como icono diminuto que en grande.
+    </p>
+  </section>
+
+  <!-- PALETA -->
+  <section>
+    <h2>Paleta</h2>
+    <div class="palette">
+      <div class="sw"><div class="color" style="background:#0A0E1A;"></div><div class="meta"><b>Noche</b><span>#0A0E1A</span></div></div>
+      <div class="sw"><div class="color" style="background:#0D1117;"></div><div class="meta"><b>Noche 2</b><span>#0D1117</span></div></div>
+      <div class="sw"><div class="color" style="background:#141A28;"></div><div class="meta"><b>Tarjeta</b><span>#141A28</span></div></div>
+      <div class="sw"><div class="color" style="background:#FFB627;"></div><div class="meta"><b>Ámbar</b><span>#FFB627</span></div></div>
+      <div class="sw"><div class="color" style="background:#2BB6A4;"></div><div class="meta"><b>En ruta</b><span>#2BB6A4</span></div></div>
+      <div class="sw"><div class="color" style="background:#F4F1EA;"></div><div class="meta"><b>Texto</b><span>#F4F1EA</span></div></div>
+    </div>
+    <p class="concepto" style="margin-top:22px;">
+      Base <b>azul noche casi negra</b> para una sensación sobria y nocturna (muchos viajes son de tarde/madrugada y el móvil se lee mejor en oscuro). El <b>ámbar de carretera</b> es la marca: faros, señales, la luz del sur. El <b>cian apagado</b> queda reservado para estados activos: "viaje en ruta", "plaza confirmada".
+    </p>
+  </section>
+
+  <!-- TIPOGRAFÍA -->
+  <section>
+    <h2>Tipografía</h2>
+    <div class="type-row">
+      <div class="name">Display · Fraunces</div>
+      <div class="display-sample">Granada · Loja · Antequera · Algeciras</div>
+    </div>
+    <div class="type-row">
+      <div class="name">Interfaz · Sora</div>
+      <div class="body-sample">Reserva tu plaza · Salida 7:30 · 3 plazas libres · Pago en efectivo o tarjeta</div>
+    </div>
+    <p class="concepto" style="margin-top:18px;">
+      <b>Fraunces</b> (serif con carácter) para titulares y nombres de ruta — da calidez y personalidad, evita el aire de plantilla. <b>Sora</b> (geométrica, legibilísima en pantalla pequeña) para toda la interfaz: botones, horarios, listados.
+    </p>
+  </section>
+
+  <!-- ICONO PWA -->
+  <section>
+    <h2>Icono de la PWA en el móvil</h2>
+    <div class="pwa-row">
+      <div>
+        <div class="pwa-icon">
+          <svg width="72" height="72" viewBox="0 0 92 92" fill="none"><path d="M20 66 L20 30 L46 56 L72 30 L72 66" stroke="#FFB627" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="20" cy="30" r="6.5" fill="#0A0E1A" stroke="#FFB627" stroke-width="4"/><circle cx="72" cy="30" r="6.5" fill="#0A0E1A" stroke="#FFB627" stroke-width="4"/><circle cx="46" cy="56" r="5" fill="#2BB6A4"/></svg>
+        </div>
+        <p class="caption">Pantalla de inicio</p>
+      </div>
+      <div>
+        <div class="pwa-icon sm">
+          <svg width="38" height="38" viewBox="0 0 92 92" fill="none"><path d="M20 66 L20 30 L46 56 L72 30 L72 66" stroke="#FFB627" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <p class="caption">Notificación</p>
+      </div>
+      <div>
+        <div class="pwa-icon xs">
+          <svg width="24" height="24" viewBox="0 0 92 92" fill="none"><path d="M20 66 L20 30 L46 56 L72 30 L72 66" stroke="#FFB627" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <p class="caption">Favicon</p>
+      </div>
+    </div>
+    <p class="concepto" style="margin-top:22px;">
+      Al instalar la web-app, este icono se ancla en la pantalla del móvil como una app cualquiera. En tamaños pequeños el isotipo se simplifica (solo la M-ruta) para que siga siendo nítido.
+    </p>
+  </section>
+
+</div>
+</body>
+</html>
