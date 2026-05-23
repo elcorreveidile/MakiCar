@@ -7,7 +7,7 @@ export type TipoMaleta    = 'no' | 'maletero' | 'asiento';
 export type TipoMascota   = 'no' | 'pies' | 'asiento';
 export type FormaPago     = 'efectivo' | 'tarjeta';
 
-// Tipo Database completo para el cliente de Supabase (tipado fuerte en todas las queries)
+// Tipo Database completo para el cliente de Supabase
 // Regenerar con `supabase gen types typescript` cuando cambien las tablas.
 export interface Database {
   public: {
@@ -35,6 +35,7 @@ export interface Database {
           telefono?: string | null;
           direccion_habitual_recogida?: string | null;
         };
+        Relationships: [];
       };
       conductores: {
         Row: {
@@ -61,6 +62,7 @@ export interface Database {
           stripe_account_id?: string | null;
           activo?: boolean;
         };
+        Relationships: [];
       };
       trips: {
         Row: {
@@ -93,6 +95,7 @@ export interface Database {
           plazas_libres?: number;
           estado?: EstadoTrip;
         };
+        Relationships: [];
       };
       bookings: {
         Row: {
@@ -100,6 +103,7 @@ export interface Database {
           trip_id: string | null;
           conductor_id: string;
           cliente_id: string;
+          fecha_hora_solicitada: string | null;
           origen: string;
           destino: string;
           direccion_recogida: string | null;
@@ -122,6 +126,7 @@ export interface Database {
           trip_id?: string | null;
           conductor_id: string;
           cliente_id: string;
+          fecha_hora_solicitada?: string | null;
           origen: string;
           destino: string;
           direccion_recogida?: string | null;
@@ -141,6 +146,7 @@ export interface Database {
         };
         Update: {
           trip_id?: string | null;
+          fecha_hora_solicitada?: string | null;
           origen?: string;
           destino?: string;
           direccion_recogida?: string | null;
@@ -157,6 +163,15 @@ export interface Database {
           cancelada_at?: string | null;
           penalizacion?: number;
         };
+        Relationships: [
+          {
+            foreignKeyName: "bookings_trip_id_fkey";
+            columns: ["trip_id"];
+            isOneToOne: false;
+            referencedRelation: "trips";
+            referencedColumns: ["id"];
+          }
+        ];
       };
       deudas: {
         Row: {
@@ -181,6 +196,7 @@ export interface Database {
           importe?: number;
           saldada?: boolean;
         };
+        Relationships: [];
       };
       special_requests: {
         Row: {
@@ -221,11 +237,15 @@ export interface Database {
           stripe_payment_intent_id?: string | null;
           estado?: EstadoSpecial;
         };
+        Relationships: [];
       };
     };
     Functions: {
       es_conductor_activo: { Args: Record<never, never>; Returns: boolean };
       mi_conductor_id: { Args: Record<never, never>; Returns: string };
     };
+    Views: { [_ in never]: never };
+    Enums: { [_ in never]: never };
+    CompositeTypes: { [_ in never]: never };
   };
 }
