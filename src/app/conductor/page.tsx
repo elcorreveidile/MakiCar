@@ -4,9 +4,9 @@ import {
   confirmarReserva, rechazarReserva, completarReserva,
   confirmarEspecial, rechazarEspecial,
   saldaDeuda, cerrarSesionConductor,
-  cerrarViaje, reabrirViaje,
 } from './actions';
 import TripForm from './TripForm';
+import TripCard from './TripCard';
 import MakiCarLogo from '@/components/MakiCarLogo';
 
 function formatFecha(iso: string | null) {
@@ -25,7 +25,12 @@ function Seccion({ titulo, children }: { titulo: string; children: React.ReactNo
   );
 }
 
-export default async function ConductorPage() {
+export default async function ConductorPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const { error } = await searchParams;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
@@ -36,41 +41,55 @@ export default async function ConductorPage() {
   const { data: conductorId } = await supabase.rpc('mi_conductor_id');
   if (!conductorId) redirect('/');
 
-  const [{ data: bookings }, { data: especiales }, { data: deudas }, { data: trips }] =
-    await Promise.all([
-      supabase
-        .from('bookings')
-        .select('*')
-        .eq('conductor_id', conductorId)
-        .in('estado', ['pendiente', 'confirmada'])
-        .order('created_at', { ascending: false }),
-      supabase
-        .from('special_requests')
-        .select('*')
-        .eq('conductor_id', conductorId)
-        .eq('estado', 'pendiente')
-        .order('created_at', { ascending: false }),
-      supabase
-        .from('deudas')
-        .select('*, profiles!deudas_cliente_id_fkey(nombre)')
-        .eq('conductor_id', conductorId)
-        .eq('saldada', false)
-        .order('created_at', { ascending: false }),
-      supabase
-        .from('trips')
-        .select('*')
-        .eq('conductor_id', conductorId)
-        .gte('fecha_hora', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
-        .order('fecha_hora', { ascending: true }),
-    ]);
+  const [
+    { data: bookings },
+    { data: especiales },
+    { data: deudas },
+    { data: trips },
+    { data: canceladas },
+  ] = await Promise.all([
+    supabase
+      .from('bookings')
+      .select('*')
+      .eq('conductor_id', conductorId)
+      .in('estado', ['pendiente', 'confirmada'])
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('special_requests')
+      .select('*')
+      .eq('conductor_id', conductorId)
+      .eq('estado', 'pendiente')
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('deudas')
+      .select('*, profiles!deudas_cliente_id_fkey(nombre)')
+      .eq('conductor_id', conductorId)
+      .eq('saldada', false)
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('trips')
+      .select('*')
+      .eq('conductor_id', conductorId)
+      .gte('fecha_hora', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
+      .order('fecha_hora', { ascending: true }),
+    supabase
+      .from('bookings')
+      .select('*')
+      .eq('conductor_id', conductorId)
+      .eq('estado', 'cancelada')
+      .gt('penalizacion', 0)
+      .order('cancelada_at', { ascending: false })
+      .limit(20),
+  ]);
 
   const pendientes  = bookings?.filter(b => b.estado === 'pendiente')  ?? [];
   const confirmadas = bookings?.filter(b => b.estado === 'confirmada') ?? [];
 
-  // Perfiles de los pasajeros con reservas activas
+  // Perfiles de pasajeros con reservas activas y canceladas
   const clienteIds = [...new Set([
     ...pendientes.map(b => b.cliente_id),
     ...confirmadas.map(b => b.cliente_id),
+    ...(canceladas ?? []).map(b => b.cliente_id),
   ])];
   const { data: clienteProfiles } = clienteIds.length > 0
     ? await supabase.from('profiles').select('id, nombre, telefono, avatar_url').in('id', clienteIds)
@@ -94,42 +113,18 @@ export default async function ConductorPage() {
 
       <div className="flex-1 px-5 py-5 overflow-y-auto pb-8">
 
+        {error === 'reservas_activas' && (
+          <div className="bg-[rgba(229,84,75,.1)] border border-[rgba(229,84,75,.3)] text-[#E5544B] text-sm rounded-xl px-4 py-3 mb-5">
+            No se puede eliminar un viaje con reservas pendientes o confirmadas.
+          </div>
+        )}
+
         {/* ── Mis viajes ────────────────────────────────── */}
         <Seccion titulo="Mis viajes">
           <TripForm />
           {!trips?.length
             ? <p className="text-gris text-sm">No hay viajes programados.</p>
-            : trips.map(t => (
-              <div key={t.id} className="bg-carta border border-linea rounded-xl p-4 mb-3">
-                <div className="flex justify-between items-start mb-1">
-                  <span className="font-semibold text-[14px]">{t.origen_cabecera} → {t.destino_cabecera}</span>
-                  {t.estado === 'abierto'
-                    ? <span className="text-ruta text-[10px] font-bold bg-[rgba(43,182,164,.14)] px-2 py-0.5 rounded-full">ABIERTO</span>
-                    : <span className="text-gris text-[10px] font-bold bg-[rgba(138,147,166,.14)] px-2 py-0.5 rounded-full">CERRADO</span>
-                  }
-                </div>
-                <div className="text-gris text-[12px] mb-3">
-                  {formatFecha(t.fecha_hora)} · {t.plazas_libres}/{t.plazas_totales} plazas · {t.precio} €/plaza
-                </div>
-                {t.estado === 'abierto'
-                  ? (
-                    <form action={cerrarViaje}>
-                      <input type="hidden" name="trip_id" value={t.id} />
-                      <button type="submit" className="text-[12px] text-gris border border-linea rounded-lg px-3 py-1.5 font-semibold active:scale-[.98] transition-transform">
-                        Cerrar viaje
-                      </button>
-                    </form>
-                  ) : (
-                    <form action={reabrirViaje}>
-                      <input type="hidden" name="trip_id" value={t.id} />
-                      <button type="submit" className="text-[12px] text-ambar border border-ambar/40 rounded-lg px-3 py-1.5 font-semibold active:scale-[.98] transition-transform">
-                        Reabrir viaje
-                      </button>
-                    </form>
-                  )
-                }
-              </div>
-            ))
+            : trips.map(t => <TripCard key={t.id} trip={t} />)
           }
         </Seccion>
 
@@ -151,7 +146,6 @@ export default async function ConductorPage() {
                     {b.maleta !== 'no' && ` · Maleta: ${b.maleta}`}
                     {b.mascota !== 'no' && ` · Mascota: ${b.mascota}`}
                   </div>
-                  {/* Datos del pasajero */}
                   <div className="bg-[#0D1117] rounded-lg px-3 py-2 mb-3 flex gap-3 items-start">
                     <div className="w-10 h-10 rounded-full bg-carta border border-linea overflow-hidden flex-shrink-0 flex items-center justify-center">
                       {cliente?.avatar_url
@@ -201,11 +195,20 @@ export default async function ConductorPage() {
                   <div className="text-gris text-[12px] mb-2">
                     {formatFecha(b.fecha_hora_solicitada)} · {b.precio_total} €
                   </div>
-                  <div className="bg-[#0D1117] rounded-lg px-3 py-2 mb-3 text-[12px]">
-                    <p className="text-blanco font-semibold">{cliente?.nombre ?? '—'}</p>
-                    {cliente?.telefono && <p className="text-gris">{cliente.telefono}</p>}
-                    {b.direccion_recogida && <p className="text-gris">Recogida: {b.direccion_recogida}</p>}
-                    {b.direccion_destino  && <p className="text-gris">Destino: {b.direccion_destino}</p>}
+                  <div className="bg-[#0D1117] rounded-lg px-3 py-2 mb-3 flex gap-3 items-start">
+                    <div className="w-10 h-10 rounded-full bg-carta border border-linea overflow-hidden flex-shrink-0 flex items-center justify-center">
+                      {cliente?.avatar_url
+                        // eslint-disable-next-line @next/next/no-img-element
+                        ? <img src={cliente.avatar_url} alt="" className="w-full h-full object-cover" />
+                        : <span className="text-gris text-lg">◎</span>
+                      }
+                    </div>
+                    <div className="text-[12px] min-w-0">
+                      <p className="text-blanco font-semibold">{cliente?.nombre ?? '—'}</p>
+                      {cliente?.telefono && <p className="text-gris">{cliente.telefono}</p>}
+                      {b.direccion_recogida && <p className="text-gris truncate">Recogida: {b.direccion_recogida}</p>}
+                      {b.direccion_destino  && <p className="text-gris truncate">Destino: {b.direccion_destino}</p>}
+                    </div>
                   </div>
                   <form action={completarReserva}>
                     <input type="hidden" name="booking_id" value={b.id} />
@@ -264,6 +267,36 @@ export default async function ConductorPage() {
           }
         </Seccion>
 
+        {/* ── Reservas canceladas con penalización ─────── */}
+        {(canceladas?.length ?? 0) > 0 && (
+          <Seccion titulo={`Canceladas con penalización (${canceladas!.length})`}>
+            {canceladas!.map(b => {
+              const cliente = clienteMap[b.cliente_id];
+              return (
+                <div key={b.id} className="bg-carta border border-[rgba(229,84,75,.25)] rounded-xl p-4 mb-3">
+                  <div className="flex justify-between items-start mb-1">
+                    <span className="font-semibold text-[14px]">{b.origen} → {b.destino}</span>
+                    <span className="text-[#E5544B] text-[10px] font-bold bg-[rgba(229,84,75,.12)] px-2 py-0.5 rounded-full">CANCELADA</span>
+                  </div>
+                  <div className="text-gris text-[12px] mb-2">
+                    {formatFecha(b.fecha_hora_solicitada)} · {b.precio_total} € · {b.forma_pago.toUpperCase()}
+                  </div>
+                  <div className="flex justify-between items-center bg-[#0D1117] rounded-lg px-3 py-2">
+                    <div className="text-[12px]">
+                      <p className="text-blanco font-semibold">{cliente?.nombre ?? '—'}</p>
+                      {cliente?.telefono && <p className="text-gris">{cliente.telefono}</p>}
+                    </div>
+                    <div className="text-right">
+                      <p className="text-[#E5544B] font-semibold text-[13px]">Penalización</p>
+                      <p className="text-[#E5544B] font-bold text-[15px]">{b.penalizacion} €</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </Seccion>
+        )}
+
         {/* ── Deudas ────────────────────────────────────── */}
         {(deudas?.length ?? 0) > 0 && (
           <Seccion titulo={`Deudas pendientes (${deudas!.length})`}>
@@ -273,7 +306,7 @@ export default async function ConductorPage() {
                 <div key={d.id} className="bg-carta border border-linea rounded-xl p-4 mb-3 flex justify-between items-center">
                   <div>
                     <p className="font-semibold text-[14px]">{cliente?.nombre ?? 'Cliente'}</p>
-                    <p className="text-gris text-[12px]">{d.importe} € · penalización</p>
+                    <p className="text-gris text-[12px]">{d.importe} € · pendiente de cobro</p>
                   </div>
                   <form action={saldaDeuda}>
                     <input type="hidden" name="deuda_id" value={d.id} />

@@ -20,9 +20,24 @@ export async function confirmarReserva(formData: FormData) {
 
 export async function rechazarReserva(formData: FormData) {
   const supabase = await getConductorSupabase();
+  const bookingId = formData.get('booking_id') as string;
+  const { data: booking } = await supabase
+    .from('bookings').select('trip_id').eq('id', bookingId).single();
+
   await supabase.from('bookings')
     .update({ estado: 'rechazada' })
-    .eq('id', formData.get('booking_id') as string);
+    .eq('id', bookingId);
+
+  // Devolver plaza al viaje si aplica
+  if (booking?.trip_id) {
+    const { data: trip } = await supabase
+      .from('trips').select('plazas_libres, plazas_totales').eq('id', booking.trip_id).single();
+    if (trip && trip.plazas_libres < trip.plazas_totales) {
+      await supabase.from('trips')
+        .update({ plazas_libres: trip.plazas_libres + 1 })
+        .eq('id', booking.trip_id);
+    }
+  }
   revalidatePath('/conductor');
 }
 
@@ -81,6 +96,29 @@ export async function crearViaje(formData: FormData) {
   revalidatePath('/conductor');
 }
 
+export async function editarViaje(formData: FormData) {
+  const supabase = await getConductorSupabase();
+  const tripId     = formData.get('trip_id') as string;
+  const nuevasPlazas = parseInt(formData.get('plazas') as string, 10);
+  const precio       = parseFloat(formData.get('precio') as string);
+  const fechaHora    = formData.get('fecha_hora') as string;
+
+  const { data: trip } = await supabase
+    .from('trips').select('plazas_totales, plazas_libres').eq('id', tripId).single();
+  if (!trip) return;
+
+  const delta       = nuevasPlazas - trip.plazas_totales;
+  const nuevasLibres = Math.max(0, trip.plazas_libres + delta);
+
+  await supabase.from('trips').update({
+    fecha_hora:     fechaHora,
+    plazas_totales: nuevasPlazas,
+    plazas_libres:  nuevasLibres,
+    precio,
+  }).eq('id', tripId);
+  revalidatePath('/conductor');
+}
+
 export async function cerrarViaje(formData: FormData) {
   const supabase = await getConductorSupabase();
   await supabase.from('trips')
@@ -94,6 +132,24 @@ export async function reabrirViaje(formData: FormData) {
   await supabase.from('trips')
     .update({ estado: 'abierto' })
     .eq('id', formData.get('trip_id') as string);
+  revalidatePath('/conductor');
+}
+
+export async function eliminarViaje(formData: FormData) {
+  const supabase = await getConductorSupabase();
+  const tripId = formData.get('trip_id') as string;
+
+  const { count } = await supabase
+    .from('bookings')
+    .select('*', { count: 'exact', head: true })
+    .eq('trip_id', tripId)
+    .in('estado', ['pendiente', 'confirmada']);
+
+  if ((count ?? 0) > 0) {
+    redirect('/conductor?error=reservas_activas');
+  }
+
+  await supabase.from('trips').delete().eq('id', tripId);
   revalidatePath('/conductor');
 }
 
