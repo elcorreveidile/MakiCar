@@ -22,9 +22,15 @@ export async function actualizarPerfil(formData: FormData) {
       .from('avatars')
       .upload(path, avatar, { upsert: true, contentType: avatar.type });
 
-    console.log('[Storage upload]', { path, size: avatar.size, uploadData, uploadError });
+    if (uploadError) {
+      await supabase.from('profiles').update({
+        ...(nombre && { nombre }), telefono, direccion_habitual_recogida: direccion,
+      }).eq('id', user.id);
+      revalidatePath('/perfil');
+      redirect(`/perfil?guardado=1&foto_error=${encodeURIComponent(uploadError.message)}`);
+    }
 
-    if (!uploadError && uploadData) {
+    if (uploadData) {
       const { data: { publicUrl } } = supabase.storage
         .from('avatars')
         .getPublicUrl(uploadData.path);
