@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { cancelarReserva } from './actions';
+import { cancelarReserva, cerrarSesion } from './actions';
 import BottomTabs from '@/components/BottomTabs';
 
 const ESTADO_BADGE: Record<string, { label: string; classes: string }> = {
@@ -121,6 +121,16 @@ export default async function MisViajesPage() {
             <a href="/" className="text-ambar mt-3 block">Reservar plaza →</a>
           </div>
         )}
+
+        {/* Cerrar sesión */}
+        <form action={cerrarSesion} className="mt-8 pb-4">
+          <button
+            type="submit"
+            className="w-full text-[13px] text-gris border border-linea rounded-xl py-3 font-semibold active:scale-[.98] transition-transform"
+          >
+            Cerrar sesión
+          </button>
+        </form>
       </div>
 
       <BottomTabs />
