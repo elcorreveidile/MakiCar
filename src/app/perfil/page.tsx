@@ -16,7 +16,7 @@ export default async function PerfilPage({
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('nombre, telefono, direccion_habitual_recogida')
+    .select('nombre, telefono, direccion_habitual_recogida, avatar_url')
     .eq('id', user.id)
     .single();
 
@@ -47,6 +47,7 @@ export default async function PerfilPage({
           nombre={profile?.nombre ?? ''}
           telefono={profile?.telefono ?? null}
           direccion={profile?.direccion_habitual_recogida ?? null}
+          avatarUrl={profile?.avatar_url ?? null}
           guardado={guardado === '1'}
         />
       </div>

@@ -1,14 +1,18 @@
 'use client';
+import { useState } from 'react';
 import { actualizarPerfil } from './actions';
 
 interface Props {
   nombre: string;
   telefono: string | null;
   direccion: string | null;
+  avatarUrl: string | null;
   guardado: boolean;
 }
 
-export default function ProfileForm({ nombre, telefono, direccion, guardado }: Props) {
+export default function ProfileForm({ nombre, telefono, direccion, avatarUrl, guardado }: Props) {
+  const [preview, setPreview] = useState<string | null>(null);
+
   return (
     <form action={actualizarPerfil} className="flex flex-col gap-3.5">
       {guardado && (
@@ -16,6 +20,38 @@ export default function ProfileForm({ nombre, telefono, direccion, guardado }: P
           Cambios guardados correctamente.
         </div>
       )}
+
+      {/* Avatar */}
+      <div className="flex justify-center mb-2">
+        <label className="cursor-pointer relative">
+          <div className="w-24 h-24 rounded-full bg-carta border-2 border-linea overflow-hidden flex items-center justify-center">
+            {(preview || avatarUrl) ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={preview ?? avatarUrl!}
+                alt="Foto de perfil"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span className="text-gris text-4xl">◎</span>
+            )}
+          </div>
+          <div className="absolute bottom-0 right-0 bg-ambar text-noche w-7 h-7 rounded-full flex items-center justify-center text-lg font-bold leading-none">
+            +
+          </div>
+          <input
+            type="file"
+            name="avatar"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) setPreview(URL.createObjectURL(file));
+            }}
+          />
+        </label>
+      </div>
+      <p className="text-center text-gris text-xs -mt-1 mb-1">Toca la foto para cambiarla</p>
 
       <div>
         <label className="block text-gris text-xs mb-1.5">Nombre</label>

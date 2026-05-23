@@ -19,6 +19,7 @@ export interface Database {
           nombre: string;
           telefono: string | null;
           direccion_habitual_recogida: string | null;
+          avatar_url: string | null;
           created_at: string;
         };
         Insert: {
@@ -27,6 +28,7 @@ export interface Database {
           nombre?: string;
           telefono?: string | null;
           direccion_habitual_recogida?: string | null;
+          avatar_url?: string | null;
           created_at?: string;
         };
         Update: {
@@ -34,6 +36,7 @@ export interface Database {
           nombre?: string;
           telefono?: string | null;
           direccion_habitual_recogida?: string | null;
+          avatar_url?: string | null;
         };
         Relationships: [];
       };
