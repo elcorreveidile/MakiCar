@@ -18,19 +18,20 @@ interface Trip {
 function formatFecha(iso: string) {
   return new Date(iso).toLocaleString('es-ES', {
     weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
+    timeZone: 'UTC',
   });
 }
 
 function toLocalDate(iso: string) {
   const d = new Date(iso);
   const pad = (n: number) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}`;
 }
 
 function toLocalTime(iso: string) {
   const d = new Date(iso);
   const pad = (n: number) => String(n).padStart(2, '0');
-  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  return `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}`;
 }
 
 export default function TripCard({ trip }: { trip: Trip }) {
