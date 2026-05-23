@@ -20,11 +20,16 @@ function formatFecha(iso: string) {
   });
 }
 
-function toDatetimeLocal(iso: string) {
+function toLocalDate(iso: string) {
   const d = new Date(iso);
-  // Adjust to local time for datetime-local input
-  const offset = d.getTimezoneOffset() * 60000;
-  return new Date(d.getTime() - offset).toISOString().slice(0, 16);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+function toLocalTime(iso: string) {
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
 export default function TripCard({ trip }: { trip: Trip }) {
@@ -42,15 +47,27 @@ export default function TripCard({ trip }: { trip: Trip }) {
             Editar · {trip.origen_cabecera} → {trip.destino_cabecera}
           </p>
 
-          <div>
-            <label className="block text-gris text-[10px] mb-1">Fecha y hora</label>
-            <input
-              type="datetime-local"
-              name="fecha_hora"
-              defaultValue={toDatetimeLocal(trip.fecha_hora)}
-              required
-              className="w-full bg-[#0D1117] border border-linea rounded-xl px-3 py-2.5 text-blanco text-sm focus:outline-none focus:border-ambar"
-            />
+          <div className="flex gap-3">
+            <div className="flex-1">
+              <label className="block text-gris text-[10px] mb-1">Fecha</label>
+              <input
+                type="date"
+                name="fecha"
+                defaultValue={toLocalDate(trip.fecha_hora)}
+                required
+                className="w-full bg-[#0D1117] border border-linea rounded-xl px-3 py-2.5 text-blanco text-sm focus:outline-none focus:border-ambar"
+              />
+            </div>
+            <div>
+              <label className="block text-gris text-[10px] mb-1">Hora</label>
+              <input
+                type="time"
+                name="hora"
+                defaultValue={toLocalTime(trip.fecha_hora)}
+                required
+                className="w-28 bg-[#0D1117] border border-linea rounded-xl px-3 py-2.5 text-blanco text-sm focus:outline-none focus:border-ambar"
+              />
+            </div>
           </div>
 
           <div className="flex gap-3">

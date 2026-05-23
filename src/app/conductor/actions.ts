@@ -101,7 +101,9 @@ export async function editarViaje(formData: FormData) {
   const tripId     = formData.get('trip_id') as string;
   const nuevasPlazas = parseInt(formData.get('plazas') as string, 10);
   const precio       = parseFloat(formData.get('precio') as string);
-  const fechaHora    = formData.get('fecha_hora') as string;
+  const fecha        = formData.get('fecha') as string;
+  const hora         = formData.get('hora') as string;
+  const fechaHora    = `${fecha}T${hora}`;
 
   const { data: trip } = await supabase
     .from('trips').select('plazas_totales, plazas_libres').eq('id', tripId).single();
