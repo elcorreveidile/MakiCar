@@ -156,8 +156,11 @@ export async function eliminarViaje(formData: FormData) {
 export async function eliminarReservaCancelada(formData: FormData) {
   const supabase = await getConductorSupabase();
   const bookingId = formData.get('booking_id') as string;
+  // Borra la deuda y pone penalizacion=0 para que no aparezca en la sección,
+  // pero conserva el booking para mantener el historial del pasajero.
   await supabase.from('deudas').delete().eq('booking_id', bookingId);
-  await supabase.from('bookings').delete()
+  await supabase.from('bookings')
+    .update({ penalizacion: 0 })
     .eq('id', bookingId)
     .eq('estado', 'cancelada');
   revalidatePath('/conductor');
