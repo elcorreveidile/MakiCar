@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { cerrarViaje, reabrirViaje, editarViaje, eliminarViaje } from './actions';
 import type { EstadoTrip } from '@/lib/supabase/types';
 
@@ -34,12 +35,13 @@ function toLocalTime(iso: string) {
 
 export default function TripCard({ trip }: { trip: Trip }) {
   const [editando, setEditando] = useState(false);
+  const router = useRouter();
 
   if (editando) {
     return (
       <div className="bg-carta border border-ambar/30 rounded-xl p-4 mb-3">
         <form
-          action={async (fd) => { await editarViaje(fd); setEditando(false); }}
+          action={async (fd) => { await editarViaje(fd); setEditando(false); router.refresh(); }}
           className="flex flex-col gap-3"
         >
           <input type="hidden" name="trip_id" value={trip.id} />
