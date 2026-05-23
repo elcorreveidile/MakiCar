@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { cancelarReserva } from './actions';
+import { cancelarReserva, cancelarEspecial } from './actions';
 import BottomTabs from '@/components/BottomTabs';
 
 const ESTADO_BADGE: Record<string, { label: string; classes: string }> = {
@@ -113,10 +113,21 @@ export default async function MisViajesPage() {
                       {badge.label}
                     </span>
                   </div>
-                  <div className="text-gris text-[12px] leading-relaxed">
+                  <div className="text-gris text-[12px] leading-relaxed mb-3">
                     {formatFecha(s.fecha_hora)} · {s.num_pasajeros} pax
                     {s.precio_propuesto && ` · ${s.precio_propuesto} €`}
                   </div>
+                  {['pendiente', 'confirmada'].includes(s.estado) && (
+                    <form action={cancelarEspecial}>
+                      <input type="hidden" name="sr_id" value={s.id} />
+                      <button
+                        type="submit"
+                        className="text-[13px] text-gris border border-linea rounded-lg px-3 py-1.5 font-semibold active:scale-[.98] transition-transform"
+                      >
+                        Cancelar solicitud
+                      </button>
+                    </form>
+                  )}
                 </div>
               );
             })}

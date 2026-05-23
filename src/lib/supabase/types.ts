@@ -2,7 +2,7 @@
 export type Rol           = 'cliente' | 'conductor';
 export type EstadoBooking = 'pendiente' | 'confirmada' | 'rechazada' | 'completada' | 'cancelada';
 export type EstadoTrip    = 'abierto' | 'cerrado';
-export type EstadoSpecial = 'pendiente' | 'confirmada' | 'rechazada' | 'completada';
+export type EstadoSpecial = 'pendiente' | 'confirmada' | 'rechazada' | 'completada' | 'cancelada';
 export type TipoMaleta    = 'no' | 'maletero' | 'asiento';
 export type TipoMascota   = 'no' | 'pies' | 'asiento';
 export type FormaPago     = 'efectivo' | 'tarjeta';

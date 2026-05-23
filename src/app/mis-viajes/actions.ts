@@ -56,3 +56,42 @@ export async function cancelarReserva(formData: FormData) {
 
   revalidatePath('/mis-viajes');
 }
+
+export async function cancelarEspecial(formData: FormData) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect('/login');
+
+  const srId = formData.get('sr_id') as string;
+
+  const { data: sr } = await supabase
+    .from('special_requests')
+    .select('estado, fecha_hora, precio_propuesto, conductor_id')
+    .eq('id', srId)
+    .eq('cliente_id', user.id)
+    .single();
+
+  if (!sr || !['pendiente', 'confirmada'].includes(sr.estado)) return;
+
+  await supabase
+    .from('special_requests')
+    .update({ estado: 'cancelada' })
+    .eq('id', srId)
+    .eq('cliente_id', user.id);
+
+  // Penalización solo si confirmada, con precio, y queda menos de 24 h
+  const menosDe24h =
+    new Date(sr.fecha_hora).getTime() - Date.now() < 24 * 60 * 60 * 1000;
+
+  if (sr.estado === 'confirmada' && sr.precio_propuesto && menosDe24h) {
+    const penalizacion = Math.round(sr.precio_propuesto / 2 * 100) / 100;
+    await supabase.from('deudas').insert({
+      cliente_id:   user.id,
+      conductor_id: sr.conductor_id,
+      booking_id:   srId,
+      importe:      penalizacion,
+    });
+  }
+
+  revalidatePath('/mis-viajes');
+}
