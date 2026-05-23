@@ -7,6 +7,7 @@ import {
   cerrarViaje, reabrirViaje,
 } from './actions';
 import TripForm from './TripForm';
+import MakiCarLogo from '@/components/MakiCarLogo';
 
 function formatFecha(iso: string | null) {
   if (!iso) return '—';
@@ -80,9 +81,7 @@ export default async function ConductorPage() {
     <div className="flex flex-col min-h-screen bg-noche">
       {/* TopBar */}
       <div className="sticky top-0 z-10 bg-[#0D1117] border-b border-linea px-5 pt-10 pb-3.5 flex justify-between items-center">
-        <span className="font-sora font-extrabold text-[19px] tracking-tight">
-          Maki<span className="text-ambar">Car</span>
-        </span>
+        <MakiCarLogo />
         <div className="flex items-center gap-3">
           <span className="text-gris text-[11px]">Panel conductor</span>
           <form action={cerrarSesionConductor}>

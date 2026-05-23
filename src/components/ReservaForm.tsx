@@ -3,6 +3,7 @@ import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { calcularPrecio, rutaDisponible, PARADAS } from '@/lib/tarifas';
 import type { Parada, Maleta, Mascota } from '@/lib/tarifas';
+import MakiCarLogo from '@/components/MakiCarLogo';
 
 const ORIGENES = PARADAS as unknown as Parada[];
 
@@ -55,9 +56,7 @@ export default function ReservaForm({ nombre }: { nombre: string }) {
     <div className="flex flex-col min-h-screen bg-noche">
       {/* TopBar */}
       <div className="sticky top-0 z-10 bg-[#0D1117] border-b border-linea px-5 pt-10 pb-3.5 flex justify-between items-center">
-        <span className="font-sora font-extrabold text-[19px] tracking-tight">
-          Maki<span className="text-ambar">Car</span>
-        </span>
+        <MakiCarLogo />
         <span className="text-gris text-[11px]">Hola, {nombre}</span>
       </div>
 

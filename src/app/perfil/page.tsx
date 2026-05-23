@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import ProfileForm from './ProfileForm';
 import { cerrarSesion } from './actions';
+import MakiCarLogo from '@/components/MakiCarLogo';
 import BottomTabs from '@/components/BottomTabs';
 
 export default async function PerfilPage({
@@ -26,9 +27,7 @@ export default async function PerfilPage({
     <div className="flex flex-col min-h-screen bg-noche">
       {/* TopBar */}
       <div className="sticky top-0 z-10 bg-[#0D1117] border-b border-linea px-5 pt-10 pb-3.5 flex justify-between items-center">
-        <span className="font-sora font-extrabold text-[19px] tracking-tight">
-          Maki<span className="text-ambar">Car</span>
-        </span>
+        <MakiCarLogo />
         <form action={cerrarSesion}>
           <button
             type="submit"

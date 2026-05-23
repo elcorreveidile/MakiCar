@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import MakiCarLogo from '@/components/MakiCarLogo';
 
 export default async function ConfirmacionPage({
   searchParams,
@@ -12,9 +13,7 @@ export default async function ConfirmacionPage({
     <div className="min-h-screen bg-noche flex flex-col">
       {/* TopBar */}
       <div className="bg-[#0D1117] border-b border-linea px-5 pt-10 pb-3.5 flex justify-between items-center">
-        <span className="font-sora font-extrabold text-[19px] tracking-tight">
-          Maki<span className="text-ambar">Car</span>
-        </span>
+        <MakiCarLogo />
       </div>
 
       {/* Success */}

@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { cancelarReserva, cancelarEspecial } from './actions';
 import BottomTabs from '@/components/BottomTabs';
+import MakiCarLogo from '@/components/MakiCarLogo';
 
 const ESTADO_BADGE: Record<string, { label: string; classes: string }> = {
   pendiente:  { label: 'PENDIENTE',  classes: 'text-ambar bg-[rgba(255,182,39,.14)]'  },
@@ -42,9 +43,7 @@ export default async function MisViajesPage() {
     <div className="flex flex-col min-h-screen bg-noche">
       {/* TopBar */}
       <div className="sticky top-0 z-10 bg-[#0D1117] border-b border-linea px-5 pt-10 pb-3.5 flex justify-between items-center">
-        <span className="font-sora font-extrabold text-[19px] tracking-tight">
-          Maki<span className="text-ambar">Car</span>
-        </span>
+        <MakiCarLogo />
         <div className="flex items-center gap-3">
           <span className="text-gris text-[11px]">Mis viajes</span>
           <Link
