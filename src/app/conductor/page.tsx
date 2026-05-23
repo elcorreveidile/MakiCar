@@ -4,6 +4,7 @@ import {
   confirmarReserva, rechazarReserva, completarReserva,
   confirmarEspecial, rechazarEspecial,
   saldaDeuda, cerrarSesionConductor,
+  eliminarReservaCancelada,
 } from './actions';
 import TripForm from './TripForm';
 import TripCard from './TripCard';
@@ -281,7 +282,7 @@ export default async function ConductorPage({
                   <div className="text-gris text-[12px] mb-2">
                     {formatFecha(b.fecha_hora_solicitada)} · {b.precio_total} € · {b.forma_pago.toUpperCase()}
                   </div>
-                  <div className="flex justify-between items-center bg-[#0D1117] rounded-lg px-3 py-2">
+                  <div className="flex justify-between items-center bg-[#0D1117] rounded-lg px-3 py-2 mb-3">
                     <div className="text-[12px]">
                       <p className="text-blanco font-semibold">{cliente?.nombre ?? '—'}</p>
                       {cliente?.telefono && <p className="text-gris">{cliente.telefono}</p>}
@@ -291,6 +292,12 @@ export default async function ConductorPage({
                       <p className="text-[#E5544B] font-bold text-[15px]">{b.penalizacion} €</p>
                     </div>
                   </div>
+                  <form action={eliminarReservaCancelada}>
+                    <input type="hidden" name="booking_id" value={b.id} />
+                    <button type="submit" className="w-full text-[12px] text-[#E5544B] border border-[rgba(229,84,75,.4)] rounded-lg py-1.5 font-semibold active:scale-[.98] transition-transform">
+                      Eliminar
+                    </button>
+                  </form>
                 </div>
               );
             })}

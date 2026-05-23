@@ -153,6 +153,16 @@ export async function eliminarViaje(formData: FormData) {
   revalidatePath('/conductor');
 }
 
+export async function eliminarReservaCancelada(formData: FormData) {
+  const supabase = await getConductorSupabase();
+  const bookingId = formData.get('booking_id') as string;
+  await supabase.from('deudas').delete().eq('booking_id', bookingId);
+  await supabase.from('bookings').delete()
+    .eq('id', bookingId)
+    .eq('estado', 'cancelada');
+  revalidatePath('/conductor');
+}
+
 export async function cerrarSesionConductor() {
   const supabase = await createClient();
   await supabase.auth.signOut();
