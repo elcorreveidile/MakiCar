@@ -119,6 +119,7 @@ export async function editarViaje(formData: FormData) {
     precio,
   }).eq('id', tripId);
   if (error) throw new Error(error.message);
+  revalidatePath('/conductor');
   redirect('/conductor');
 }
 
