@@ -14,6 +14,9 @@ export async function enviarMagicLink(formData: FormData) {
     options: { emailRedirectTo: `${siteUrl}/auth/callback` },
   });
 
-  if (error) redirect('/login?error=envio_fallido');
+  if (error) {
+    console.error('[MagicLink error]', error.status, error.message);
+    redirect(`/login?error=${encodeURIComponent(error.message)}`);
+  }
   redirect('/login?enviado=1');
 }
