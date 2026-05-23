@@ -72,8 +72,8 @@ export default async function ConductorPage() {
     ...confirmadas.map(b => b.cliente_id),
   ])];
   const { data: clienteProfiles } = clienteIds.length > 0
-    ? await supabase.from('profiles').select('id, nombre, telefono').in('id', clienteIds)
-    : { data: [] as { id: string; nombre: string; telefono: string | null }[] };
+    ? await supabase.from('profiles').select('id, nombre, telefono, avatar_url').in('id', clienteIds)
+    : { data: [] as { id: string; nombre: string; telefono: string | null; avatar_url: string | null }[] };
   const clienteMap = Object.fromEntries((clienteProfiles ?? []).map(c => [c.id, c]));
 
   return (
@@ -153,11 +153,20 @@ export default async function ConductorPage() {
                     {b.mascota !== 'no' && ` · Mascota: ${b.mascota}`}
                   </div>
                   {/* Datos del pasajero */}
-                  <div className="bg-[#0D1117] rounded-lg px-3 py-2 mb-3 text-[12px]">
-                    <p className="text-blanco font-semibold">{cliente?.nombre ?? '—'}</p>
-                    {cliente?.telefono && <p className="text-gris">{cliente.telefono}</p>}
-                    {b.direccion_recogida && <p className="text-gris">Recogida: {b.direccion_recogida}</p>}
-                    {b.direccion_destino  && <p className="text-gris">Destino: {b.direccion_destino}</p>}
+                  <div className="bg-[#0D1117] rounded-lg px-3 py-2 mb-3 flex gap-3 items-start">
+                    <div className="w-10 h-10 rounded-full bg-carta border border-linea overflow-hidden flex-shrink-0 flex items-center justify-center">
+                      {cliente?.avatar_url
+                        // eslint-disable-next-line @next/next/no-img-element
+                        ? <img src={cliente.avatar_url} alt="" className="w-full h-full object-cover" />
+                        : <span className="text-gris text-lg">◎</span>
+                      }
+                    </div>
+                    <div className="text-[12px] min-w-0">
+                      <p className="text-blanco font-semibold">{cliente?.nombre ?? '—'}</p>
+                      {cliente?.telefono && <p className="text-gris">{cliente.telefono}</p>}
+                      {b.direccion_recogida && <p className="text-gris truncate">Recogida: {b.direccion_recogida}</p>}
+                      {b.direccion_destino  && <p className="text-gris truncate">Destino: {b.direccion_destino}</p>}
+                    </div>
                   </div>
                   <div className="flex gap-2">
                     <form action={confirmarReserva} className="flex-1">
