@@ -62,6 +62,39 @@ export async function saldaDeuda(formData: FormData) {
   revalidatePath('/conductor');
 }
 
+export async function crearViaje(formData: FormData) {
+  const supabase = await getConductorSupabase();
+  const { data: conductorId } = await supabase.rpc('mi_conductor_id');
+  if (!conductorId) return;
+
+  const plazas = parseInt(formData.get('plazas') as string, 10);
+  await supabase.from('trips').insert({
+    conductor_id:     conductorId,
+    origen_cabecera:  formData.get('origen') as string,
+    destino_cabecera: formData.get('destino') as string,
+    fecha_hora:       formData.get('fecha_hora') as string,
+    plazas_totales:   plazas,
+    plazas_libres:    plazas,
+  });
+  revalidatePath('/conductor');
+}
+
+export async function cerrarViaje(formData: FormData) {
+  const supabase = await getConductorSupabase();
+  await supabase.from('trips')
+    .update({ estado: 'cerrado' })
+    .eq('id', formData.get('trip_id') as string);
+  revalidatePath('/conductor');
+}
+
+export async function reabrirViaje(formData: FormData) {
+  const supabase = await getConductorSupabase();
+  await supabase.from('trips')
+    .update({ estado: 'abierto' })
+    .eq('id', formData.get('trip_id') as string);
+  revalidatePath('/conductor');
+}
+
 export async function cerrarSesionConductor() {
   const supabase = await createClient();
   await supabase.auth.signOut();
