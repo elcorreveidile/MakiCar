@@ -73,17 +73,28 @@ export async function cancelarEspecial(formData: FormData) {
 
   if (!sr || !['pendiente', 'confirmada'].includes(sr.estado)) return;
 
+  // Pendiente sin precio acordado: borrar directamente
+  if (sr.estado === 'pendiente') {
+    await supabase
+      .from('special_requests')
+      .delete()
+      .eq('id', srId)
+      .eq('cliente_id', user.id);
+    revalidatePath('/mis-viajes');
+    return;
+  }
+
+  // Confirmada con precio: marcar rechazada + penalización si <24 h
   await supabase
     .from('special_requests')
-    .update({ estado: 'cancelada' })
+    .update({ estado: 'rechazada' })
     .eq('id', srId)
     .eq('cliente_id', user.id);
 
-  // Penalización solo si confirmada, con precio, y queda menos de 24 h
   const menosDe24h =
     new Date(sr.fecha_hora).getTime() - Date.now() < 24 * 60 * 60 * 1000;
 
-  if (sr.estado === 'confirmada' && sr.precio_propuesto && menosDe24h) {
+  if (sr.precio_propuesto && menosDe24h) {
     const penalizacion = Math.round(sr.precio_propuesto / 2 * 100) / 100;
     await supabase.from('deudas').insert({
       cliente_id:   user.id,
