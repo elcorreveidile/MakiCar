@@ -86,16 +86,26 @@ export default async function ConductorPage({
   const pendientes  = bookings?.filter(b => b.estado === 'pendiente')  ?? [];
   const confirmadas = bookings?.filter(b => b.estado === 'confirmada') ?? [];
 
-  // Perfiles de pasajeros con reservas activas y canceladas
-  const clienteIds = [...new Set([
-    ...pendientes.map(b => b.cliente_id),
-    ...confirmadas.map(b => b.cliente_id),
+  // Todos los pasajeros únicos que han reservado con este conductor
+  const { data: todosClienteIds } = await supabase
+    .from('bookings')
+    .select('cliente_id')
+    .eq('conductor_id', conductorId);
+
+  const idsUnicos = [...new Set([
+    ...(todosClienteIds ?? []).map(r => r.cliente_id),
     ...(canceladas ?? []).map(b => b.cliente_id),
   ])];
-  const { data: clienteProfiles } = clienteIds.length > 0
-    ? await supabase.from('profiles').select('id, nombre, telefono, avatar_url').in('id', clienteIds)
-    : { data: [] as { id: string; nombre: string; telefono: string | null; avatar_url: string | null }[] };
-  const clienteMap = Object.fromEntries((clienteProfiles ?? []).map(c => [c.id, c]));
+
+  const { data: todosPerfiles } = idsUnicos.length > 0
+    ? await supabase
+        .from('profiles')
+        .select('id, nombre, telefono, avatar_url, direccion_habitual_recogida')
+        .in('id', idsUnicos)
+        .order('nombre')
+    : { data: [] as { id: string; nombre: string; telefono: string | null; avatar_url: string | null; direccion_habitual_recogida: string | null }[] };
+
+  const clienteMap = Object.fromEntries((todosPerfiles ?? []).map(c => [c.id, c]));
 
   return (
     <div className="flex flex-col min-h-screen bg-noche">
@@ -301,6 +311,34 @@ export default async function ConductorPage({
                 </div>
               );
             })}
+          </Seccion>
+        )}
+
+        {/* ── Pasajeros ─────────────────────────────────── */}
+        {(todosPerfiles?.length ?? 0) > 0 && (
+          <Seccion titulo={`Pasajeros (${todosPerfiles!.length})`}>
+            {todosPerfiles!.map(p => (
+              <div key={p.id} className="bg-carta border border-linea rounded-xl p-4 mb-3 flex gap-3 items-center">
+                <div className="w-12 h-12 rounded-full bg-[#0D1117] border border-linea overflow-hidden flex-shrink-0 flex items-center justify-center">
+                  {p.avatar_url
+                    // eslint-disable-next-line @next/next/no-img-element
+                    ? <img src={p.avatar_url} alt="" className="w-full h-full object-cover" />
+                    : <span className="text-gris text-2xl">◎</span>
+                  }
+                </div>
+                <div className="min-w-0">
+                  <p className="font-semibold text-[14px] truncate">{p.nombre}</p>
+                  {p.telefono && (
+                    <a href={`tel:${p.telefono}`} className="text-ambar text-[12px] block">
+                      {p.telefono}
+                    </a>
+                  )}
+                  {p.direccion_habitual_recogida && (
+                    <p className="text-gris text-[11px] truncate">{p.direccion_habitual_recogida}</p>
+                  )}
+                </div>
+              </div>
+            ))}
           </Seccion>
         )}
 
