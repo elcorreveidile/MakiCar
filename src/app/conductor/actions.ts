@@ -68,6 +68,7 @@ export async function crearViaje(formData: FormData) {
   if (!conductorId) return;
 
   const plazas = parseInt(formData.get('plazas') as string, 10);
+  const precio = parseFloat(formData.get('precio') as string);
   await supabase.from('trips').insert({
     conductor_id:     conductorId,
     origen_cabecera:  formData.get('origen') as string,
@@ -75,6 +76,7 @@ export async function crearViaje(formData: FormData) {
     fecha_hora:       formData.get('fecha_hora') as string,
     plazas_totales:   plazas,
     plazas_libres:    plazas,
+    precio,
   });
   revalidatePath('/conductor');
 }

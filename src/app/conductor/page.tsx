@@ -110,7 +110,7 @@ export default async function ConductorPage() {
                   }
                 </div>
                 <div className="text-gris text-[12px] mb-3">
-                  {formatFecha(t.fecha_hora)} · {t.plazas_libres}/{t.plazas_totales} plazas libres
+                  {formatFecha(t.fecha_hora)} · {t.plazas_libres}/{t.plazas_totales} plazas · {t.precio} €/plaza
                 </div>
                 {t.estado === 'abierto'
                   ? (

@@ -1,6 +1,6 @@
 'use client';
-import { useState } from 'react';
-import { PARADAS } from '@/lib/tarifas';
+import { useState, useMemo } from 'react';
+import { PARADAS, calcularPrecio } from '@/lib/tarifas';
 import type { Parada } from '@/lib/tarifas';
 import { crearViaje } from './actions';
 
@@ -12,15 +12,27 @@ function destinosPara(origen: Parada): Parada[] {
 }
 
 export default function TripForm() {
-  const [origen, setOrigen] = useState<Parada>('Granada');
-  const [destino, setDestino] = useState<Parada>('Málaga');
-  const [abierto, setAbierto] = useState(false);
+  const [origen,   setOrigen]   = useState<Parada>('Granada');
+  const [destino,  setDestino]  = useState<Parada>('Málaga');
+  const [fechaHora, setFechaHora] = useState('');
+  const [abierto,  setAbierto]  = useState(false);
 
   function handleOrigenChange(v: Parada) {
     setOrigen(v);
     const ds = destinosPara(v);
     if (!ds.includes(destino)) setDestino(ds[0]);
   }
+
+  // Precio sugerido según la tarifa estándar del tramo y la hora
+  const precioSugerido = useMemo(() => {
+    if (!fechaHora) return '';
+    try {
+      const r = calcularPrecio({ origen, destino, fechaHora: new Date(fechaHora), maleta: 'no', mascota: 'no' });
+      return String(r.precioBase);
+    } catch {
+      return '';
+    }
+  }, [origen, destino, fechaHora]);
 
   if (!abierto) {
     return (
@@ -71,20 +83,41 @@ export default function TripForm() {
           type="datetime-local"
           name="fecha_hora"
           required
+          value={fechaHora}
+          onChange={e => setFechaHora(e.target.value)}
           className="w-full bg-[#0D1117] border border-linea rounded-xl px-3 py-2.5 text-blanco text-sm focus:outline-none focus:border-ambar"
         />
       </div>
 
-      <div>
-        <label className="block text-gris text-[10px] mb-1">Plazas disponibles</label>
-        <input
-          type="number"
-          name="plazas"
-          min="1"
-          max="4"
-          defaultValue="4"
-          className="w-20 bg-[#0D1117] border border-linea rounded-xl px-3 py-2.5 text-blanco text-sm focus:outline-none focus:border-ambar"
-        />
+      <div className="flex gap-3">
+        <div>
+          <label className="block text-gris text-[10px] mb-1">Plazas</label>
+          <input
+            type="number"
+            name="plazas"
+            min="1"
+            max="4"
+            defaultValue="4"
+            className="w-20 bg-[#0D1117] border border-linea rounded-xl px-3 py-2.5 text-blanco text-sm focus:outline-none focus:border-ambar"
+          />
+        </div>
+        <div className="flex-1">
+          <label className="block text-gris text-[10px] mb-1">
+            Precio por plaza (€)
+            {precioSugerido && <span className="ml-1 text-ambar">· tarifa {precioSugerido} €</span>}
+          </label>
+          <input
+            type="number"
+            name="precio"
+            min="0"
+            step="0.5"
+            required
+            value={precioSugerido}
+            onChange={() => {}}
+            placeholder="0"
+            className="w-full bg-[#0D1117] border border-linea rounded-xl px-3 py-2.5 text-blanco text-sm focus:outline-none focus:border-ambar"
+          />
+        </div>
       </div>
 
       <div className="flex gap-2">

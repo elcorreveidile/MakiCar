@@ -76,6 +76,7 @@ export interface Database {
           destino_cabecera: string;
           plazas_totales: number;
           plazas_libres: number;
+          precio: number;
           estado: EstadoTrip;
           created_at: string;
         };
@@ -87,6 +88,7 @@ export interface Database {
           destino_cabecera: string;
           plazas_totales: number;
           plazas_libres: number;
+          precio?: number;
           estado?: EstadoTrip;
           created_at?: string;
         };
@@ -96,6 +98,7 @@ export interface Database {
           destino_cabecera?: string;
           plazas_totales?: number;
           plazas_libres?: number;
+          precio?: number;
           estado?: EstadoTrip;
         };
         Relationships: [];
