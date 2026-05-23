@@ -18,14 +18,16 @@ export async function actualizarPerfil(formData: FormData) {
   if (avatar && avatar.size > 0) {
     const ext = avatar.name.split('.').pop() ?? 'jpg';
     const path = `${user.id}/avatar.${ext}`;
-    const { error } = await supabase.storage
+    const { data: uploadData, error: uploadError } = await supabase.storage
       .from('avatars')
       .upload(path, avatar, { upsert: true, contentType: avatar.type });
 
-    if (!error) {
+    console.log('[Storage upload]', { path, size: avatar.size, uploadData, uploadError });
+
+    if (!uploadError && uploadData) {
       const { data: { publicUrl } } = supabase.storage
         .from('avatars')
-        .getPublicUrl(path);
+        .getPublicUrl(uploadData.path);
       avatar_url = `${publicUrl}?t=${Date.now()}`;
     }
   }
