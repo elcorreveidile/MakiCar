@@ -178,7 +178,6 @@ describe('errores', () => {
 
   it('origen igual al destino: Granada → Granada', () => {
     expect(() =>
-      // @ts-expect-error probando runtime con tipos inválidos
       tarifa({ origen: 'Granada', destino: 'Granada' })
     ).toThrow('no es posterior');
   });
