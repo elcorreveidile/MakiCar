@@ -19,7 +19,7 @@ export interface ResultadoTarifa {
   total: number;
 }
 
-// [precio_día, precio_noche]
+// [precio_día, precio_noche] — siempre con la parada de menor índice primero
 const TABLA: Record<string, [number, number]> = {
   'Granada-Málaga':     [15, 20],
   'Granada-Marbella':   [18, 22],
@@ -32,13 +32,26 @@ const TABLA: Record<string, [number, number]> = {
   'Estepona-Algeciras': [15, 18],
 };
 
-// Tramos bloqueados explícitamente aunque el orden de paradas sea correcto
+// Tramos bloqueados en ambas direcciones (clave normalizada, índice menor primero)
 const SIN_SERVICIO = new Set<string>(['Marbella-Estepona']);
+
+// Devuelve la clave con la parada de menor índice primero
+function claveNormalizada(a: string, b: string): string {
+  return PARADAS.indexOf(a as Parada) < PARADAS.indexOf(b as Parada)
+    ? `${a}-${b}`
+    : `${b}-${a}`;
+}
 
 function esHoraNoche(fecha: Date): boolean {
   const minutos = fecha.getHours() * 60 + fecha.getMinutes();
   // Noche: 21:00 (1260 min) hasta 06:00 (360 min), ambas inclusive
   return minutos >= 21 * 60 || minutos <= 6 * 60;
+}
+
+export function rutaDisponible(origen: Parada, destino: Parada): boolean {
+  if (origen === destino) return false;
+  const clave = claveNormalizada(origen, destino);
+  return clave in TABLA && !SIN_SERVICIO.has(clave);
 }
 
 export function calcularPrecio(entrada: EntradaTarifa): ResultadoTarifa {
@@ -49,13 +62,11 @@ export function calcularPrecio(entrada: EntradaTarifa): ResultadoTarifa {
 
   if (idxOrigen === -1)  throw new Error(`Parada no reconocida: "${origen}"`);
   if (idxDestino === -1) throw new Error(`Parada no reconocida: "${destino}"`);
-  if (idxDestino <= idxOrigen) {
-    throw new Error(
-      `Destino inválido: "${destino}" no es posterior a "${origen}" en la ruta troncal`
-    );
+  if (idxOrigen === idxDestino) {
+    throw new Error(`Origen y destino son el mismo punto: "${origen}"`);
   }
 
-  const clave = `${origen}-${destino}`;
+  const clave = claveNormalizada(origen, destino);
 
   if (SIN_SERVICIO.has(clave)) {
     throw new Error(`Tramo sin servicio: ${origen} → ${destino}`);

@@ -1,15 +1,13 @@
 'use client';
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { calcularPrecio, PARADAS } from '@/lib/tarifas';
+import { calcularPrecio, rutaDisponible, PARADAS } from '@/lib/tarifas';
 import type { Parada, Maleta, Mascota } from '@/lib/tarifas';
 
-// Origen: todas las paradas excepto la última
-const ORIGENES = PARADAS.slice(0, -1) as unknown as Parada[];
+const ORIGENES = PARADAS as unknown as Parada[];
 
 function destinosPara(origen: Parada): Parada[] {
-  const idx = PARADAS.indexOf(origen);
-  return PARADAS.slice(idx + 1) as unknown as Parada[];
+  return (PARADAS as unknown as Parada[]).filter((p) => rutaDisponible(origen, p));
 }
 
 // Formato datetime-local mínimo: ahora + 1 hora

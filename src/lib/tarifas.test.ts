@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { calcularPrecio } from './tarifas';
+import { calcularPrecio, rutaDisponible } from './tarifas';
 import type { EntradaTarifa } from './tarifas';
 
 // Crea una fecha en hora local con hora y minuto exactos
@@ -161,6 +161,65 @@ describe('suplementos', () => {
   });
 });
 
+// ─── Rutas inversas (vuelta) ────────────────────────────────────────────────
+
+describe('rutas inversas: mismo precio en ambas direcciones', () => {
+  it('Málaga → Granada: día 15, noche 20', () => {
+    expect(tarifa({ origen: 'Málaga', destino: 'Granada' }).precioBase).toBe(15);
+    expect(tarifa({ origen: 'Málaga', destino: 'Granada', fechaHora: NOCHE }).precioBase).toBe(20);
+  });
+
+  it('Marbella → Granada: día 18, noche 22', () => {
+    expect(tarifa({ origen: 'Marbella', destino: 'Granada' }).precioBase).toBe(18);
+    expect(tarifa({ origen: 'Marbella', destino: 'Granada', fechaHora: NOCHE }).precioBase).toBe(22);
+  });
+
+  it('Estepona → Granada: día 20, noche 24', () => {
+    expect(tarifa({ origen: 'Estepona', destino: 'Granada' }).precioBase).toBe(20);
+    expect(tarifa({ origen: 'Estepona', destino: 'Granada', fechaHora: NOCHE }).precioBase).toBe(24);
+  });
+
+  it('Algeciras → Granada: día 25, noche 30', () => {
+    expect(tarifa({ origen: 'Algeciras', destino: 'Granada' }).precioBase).toBe(25);
+    expect(tarifa({ origen: 'Algeciras', destino: 'Granada', fechaHora: NOCHE }).precioBase).toBe(30);
+  });
+
+  it('Marbella → Málaga: día 10, noche 15', () => {
+    expect(tarifa({ origen: 'Marbella', destino: 'Málaga' }).precioBase).toBe(10);
+    expect(tarifa({ origen: 'Marbella', destino: 'Málaga', fechaHora: NOCHE }).precioBase).toBe(15);
+  });
+
+  it('Estepona → Málaga: día 13, noche 18', () => {
+    expect(tarifa({ origen: 'Estepona', destino: 'Málaga' }).precioBase).toBe(13);
+    expect(tarifa({ origen: 'Estepona', destino: 'Málaga', fechaHora: NOCHE }).precioBase).toBe(18);
+  });
+
+  it('Algeciras → Málaga: día 15, noche 20', () => {
+    expect(tarifa({ origen: 'Algeciras', destino: 'Málaga' }).precioBase).toBe(15);
+    expect(tarifa({ origen: 'Algeciras', destino: 'Málaga', fechaHora: NOCHE }).precioBase).toBe(20);
+  });
+
+  it('Algeciras → Marbella: día 12, noche 15', () => {
+    expect(tarifa({ origen: 'Algeciras', destino: 'Marbella' }).precioBase).toBe(12);
+    expect(tarifa({ origen: 'Algeciras', destino: 'Marbella', fechaHora: NOCHE }).precioBase).toBe(15);
+  });
+
+  it('Algeciras → Estepona: día 15, noche 18', () => {
+    expect(tarifa({ origen: 'Algeciras', destino: 'Estepona' }).precioBase).toBe(15);
+    expect(tarifa({ origen: 'Algeciras', destino: 'Estepona', fechaHora: NOCHE }).precioBase).toBe(18);
+  });
+});
+
+// ─── rutaDisponible ─────────────────────────────────────────────────────────
+
+describe('rutaDisponible', () => {
+  it('Granada → Málaga: disponible', () => expect(rutaDisponible('Granada', 'Málaga')).toBe(true));
+  it('Málaga → Granada: disponible', () => expect(rutaDisponible('Málaga', 'Granada')).toBe(true));
+  it('Marbella → Estepona: no disponible', () => expect(rutaDisponible('Marbella', 'Estepona')).toBe(false));
+  it('Estepona → Marbella: no disponible', () => expect(rutaDisponible('Estepona', 'Marbella')).toBe(false));
+  it('mismo punto: no disponible', () => expect(rutaDisponible('Granada', 'Granada')).toBe(false));
+});
+
 // ─── Errores ───────────────────────────────────────────────────────────────
 
 describe('errores', () => {
@@ -170,16 +229,16 @@ describe('errores', () => {
     ).toThrow('sin servicio');
   });
 
-  it('destino anterior al origen: Málaga → Granada', () => {
+  it('Estepona → Marbella: tramo sin servicio (bidireccional)', () => {
     expect(() =>
-      tarifa({ origen: 'Málaga', destino: 'Granada' })
-    ).toThrow('no es posterior');
+      tarifa({ origen: 'Estepona', destino: 'Marbella' })
+    ).toThrow('sin servicio');
   });
 
   it('origen igual al destino: Granada → Granada', () => {
     expect(() =>
       tarifa({ origen: 'Granada', destino: 'Granada' })
-    ).toThrow('no es posterior');
+    ).toThrow('mismo punto');
   });
 
   it('parada no reconocida', () => {
