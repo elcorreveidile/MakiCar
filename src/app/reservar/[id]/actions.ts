@@ -60,5 +60,18 @@ export async function reservarEnViaje(formData: FormData) {
     .update({ plazas_libres: trip.plazas_libres - 1 })
     .eq('id', tripId);
 
+  // Vincular pasajero a este conductor si aún no tiene uno asignado
+  const { data: perfil } = await supabase
+    .from('profiles')
+    .select('conductor_id')
+    .eq('id', user.id)
+    .single();
+  if (!perfil?.conductor_id) {
+    await supabase
+      .from('profiles')
+      .update({ conductor_id: trip.conductor_id })
+      .eq('id', user.id);
+  }
+
   redirect('/confirmacion');
 }

@@ -1,5 +1,5 @@
 // Tipos de dominio
-export type Rol           = 'cliente' | 'conductor';
+export type Rol           = 'cliente' | 'conductor' | 'superadmin';
 export type EstadoBooking = 'pendiente' | 'confirmada' | 'rechazada' | 'completada' | 'cancelada';
 export type EstadoTrip    = 'abierto' | 'cerrado';
 export type EstadoSpecial = 'pendiente' | 'confirmada' | 'rechazada' | 'completada' | 'cancelada';
@@ -20,6 +20,7 @@ export interface Database {
           telefono: string | null;
           direccion_habitual_recogida: string | null;
           avatar_url: string | null;
+          conductor_id: string | null;
           created_at: string;
         };
         Insert: {
@@ -29,6 +30,7 @@ export interface Database {
           telefono?: string | null;
           direccion_habitual_recogida?: string | null;
           avatar_url?: string | null;
+          conductor_id?: string | null;
           created_at?: string;
         };
         Update: {
@@ -37,6 +39,7 @@ export interface Database {
           telefono?: string | null;
           direccion_habitual_recogida?: string | null;
           avatar_url?: string | null;
+          conductor_id?: string | null;
         };
         Relationships: [];
       };
@@ -45,6 +48,7 @@ export interface Database {
           id: string;
           profile_id: string;
           nombre_servicio: string;
+          email: string | null;
           plazas_vehiculo: number;
           stripe_account_id: string | null;
           activo: boolean;
@@ -54,6 +58,7 @@ export interface Database {
           id?: string;
           profile_id: string;
           nombre_servicio: string;
+          email?: string | null;
           plazas_vehiculo?: number;
           stripe_account_id?: string | null;
           activo?: boolean;
@@ -61,6 +66,7 @@ export interface Database {
         };
         Update: {
           nombre_servicio?: string;
+          email?: string | null;
           plazas_vehiculo?: number;
           stripe_account_id?: string | null;
           activo?: boolean;
@@ -256,7 +262,8 @@ export interface Database {
     };
     Functions: {
       es_conductor_activo: { Args: Record<never, never>; Returns: boolean };
-      mi_conductor_id: { Args: Record<never, never>; Returns: string };
+      es_superadmin:       { Args: Record<never, never>; Returns: boolean };
+      mi_conductor_id:     { Args: Record<never, never>; Returns: string };
     };
     Views: { [_ in never]: never };
     Enums: { [_ in never]: never };
