@@ -44,7 +44,18 @@ export default async function MisViajesPage() {
         <span className="font-sora font-extrabold text-[19px] tracking-tight">
           Maki<span className="text-ambar">Car</span>
         </span>
-        <span className="text-gris text-[11px]">Mis viajes</span>
+        <div className="flex items-center gap-3">
+          <span className="text-gris text-[11px]">Mis viajes</span>
+          <form action={cerrarSesion}>
+            <button
+              type="submit"
+              title="Cerrar sesión"
+              className="text-gris text-[11px] border border-linea rounded-lg px-2.5 py-1 font-semibold active:scale-[.97] transition-transform hover:text-blanco hover:border-gris"
+            >
+              Salir
+            </button>
+          </form>
+        </div>
       </div>
 
       <div className="flex-1 px-5 py-5 overflow-y-auto">
@@ -122,15 +133,6 @@ export default async function MisViajesPage() {
           </div>
         )}
 
-        {/* Cerrar sesión */}
-        <form action={cerrarSesion} className="mt-8 pb-4">
-          <button
-            type="submit"
-            className="w-full text-[13px] text-gris border border-linea rounded-xl py-3 font-semibold active:scale-[.98] transition-transform"
-          >
-            Cerrar sesión
-          </button>
-        </form>
       </div>
 
       <BottomTabs />
