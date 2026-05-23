@@ -112,13 +112,14 @@ export async function editarViaje(formData: FormData) {
   const delta       = nuevasPlazas - trip.plazas_totales;
   const nuevasLibres = Math.max(0, trip.plazas_libres + delta);
 
-  await supabase.from('trips').update({
+  const { error } = await supabase.from('trips').update({
     fecha_hora:     fechaHora,
     plazas_totales: nuevasPlazas,
     plazas_libres:  nuevasLibres,
     precio,
   }).eq('id', tripId);
-  revalidatePath('/conductor');
+  if (error) throw new Error(error.message);
+  redirect('/conductor');
 }
 
 export async function cerrarViaje(formData: FormData) {
