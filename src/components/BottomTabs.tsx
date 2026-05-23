@@ -3,9 +3,10 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const TABS = [
-  { href: '/',           icon: '⌂', label: 'Reservar' },
+  { href: '/',           icon: '⌂', label: 'Reservar'  },
   { href: '/especial',   icon: '＋', label: 'A medida'  },
   { href: '/mis-viajes', icon: '≡', label: 'Mis viajes' },
+  { href: '/perfil',     icon: '◎', label: 'Perfil'    },
 ];
 
 export default function BottomTabs() {

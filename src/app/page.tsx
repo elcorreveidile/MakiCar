@@ -10,9 +10,11 @@ export default async function Home() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('nombre')
+    .select('nombre, rol')
     .eq('id', user.id)
     .single();
+
+  if (profile?.rol === 'conductor') redirect('/conductor');
 
   return (
     <div className="flex flex-col min-h-screen bg-noche">

@@ -196,7 +196,15 @@ export interface Database {
           importe?: number;
           saldada?: boolean;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "deudas_cliente_id_fkey";
+            columns: ["cliente_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          }
+        ];
       };
       special_requests: {
         Row: {
