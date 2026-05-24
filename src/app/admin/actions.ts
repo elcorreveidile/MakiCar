@@ -94,25 +94,52 @@ export async function crearConductor(formData: FormData) {
           metadata: { makicar_profile_id: userId },
         });
 
-        const subscriptionParams: Parameters<typeof stripe.subscriptions.create>[0] = {
-          customer:           customer.id,
-          items:              [{ price: priceId }],
-          collection_method:  'send_invoice',
-          days_until_due:     30,
-          metadata:           { makicar_profile_id: userId },
-        };
+        let subscriptionId: string;
+        let subscriptionStatus: string;
 
-        // Conductores estándar: añadir alta única de 150 € en la primera factura
-        if (!esLanzamiento && PRICE_SETUP) {
-          subscriptionParams.add_invoice_items = [{ price: PRICE_SETUP }];
+        if (esLanzamiento && PRICE_STANDARD) {
+          // Oferta lanzamiento: 12 meses a 10 €/mes, luego cambia sola a 25 €/mes
+          // Fin de fase 1 = ahora + 365 días (1 año de oferta de lanzamiento)
+          const unAñoDespues = Math.floor(Date.now() / 1000) + 365 * 24 * 60 * 60;
+          const schedule = await stripe.subscriptionSchedules.create({
+            customer:     customer.id,
+            start_date:   'now',
+            end_behavior: 'release',
+            phases: [
+              {
+                items:             [{ price: PRICE_LAUNCH }],
+                end_date:          unAñoDespues,
+                collection_method: 'send_invoice',
+                invoice_settings:  { days_until_due: 30 },
+              },
+              {
+                items:             [{ price: PRICE_STANDARD }],
+                collection_method: 'send_invoice',
+                invoice_settings:  { days_until_due: 30 },
+              },
+            ],
+          });
+          subscriptionId     = schedule.subscription as string;
+          subscriptionStatus = 'active';
+        } else {
+          // Estándar: 25 €/mes + alta única de 150 € en la primera factura
+          const params: Parameters<typeof stripe.subscriptions.create>[0] = {
+            customer:          customer.id,
+            items:             [{ price: PRICE_STANDARD }],
+            collection_method: 'send_invoice',
+            days_until_due:    30,
+            metadata:          { makicar_profile_id: userId },
+          };
+          if (PRICE_SETUP) params.add_invoice_items = [{ price: PRICE_SETUP }];
+          const subscription = await stripe.subscriptions.create(params);
+          subscriptionId     = subscription.id;
+          subscriptionStatus = subscription.status;
         }
-
-        const subscription = await stripe.subscriptions.create(subscriptionParams);
 
         await admin.from('conductores').update({
           makicar_stripe_customer_id:         customer.id,
-          makicar_stripe_subscription_id:     subscription.id,
-          makicar_stripe_subscription_status: subscription.status,
+          makicar_stripe_subscription_id:     subscriptionId,
+          makicar_stripe_subscription_status: subscriptionStatus,
         }).eq('profile_id', userId);
       }
     } catch (err) {
