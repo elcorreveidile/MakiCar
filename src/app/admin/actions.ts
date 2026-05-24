@@ -15,32 +15,61 @@ async function verificarSuperadmin() {
 
 export async function crearConductor(formData: FormData) {
   await verificarSuperadmin();
-  const admin   = createAdminClient();
-  const nombre  = formData.get('nombre') as string;
-  const email   = formData.get('email') as string;
-  const tel     = (formData.get('telefono') as string)?.trim() || null;
+  const admin  = createAdminClient();
+  const nombre = formData.get('nombre') as string;
+  const email  = formData.get('email') as string;
+  const tel    = (formData.get('telefono') as string)?.trim() || null;
 
-  const { data: { user }, error } = await admin.auth.admin.createUser({
+  // Intentar crear el usuario en Auth
+  const { data: { user: newUser }, error } = await admin.auth.admin.createUser({
     email,
     email_confirm: true,
   });
-  if (error || !user) throw new Error(error?.message ?? 'Error creando usuario');
 
-  // El trigger on_auth_user_created ya insertó el perfil con rol='cliente'.
-  // Solo actualizamos los campos que necesitamos cambiar.
-  await admin.from('profiles').update({
-    rol:     'conductor',
+  let userId: string;
+
+  if (error) {
+    // Si ya existe en Auth (borrado de conductor previo dejó huérfano),
+    // buscamos el usuario existente y lo reutilizamos.
+    if (!error.message.toLowerCase().includes('already')) {
+      throw new Error(error.message);
+    }
+    const { data: { users } } = await admin.auth.admin.listUsers({ perPage: 1000 });
+    const found = users.find(u => u.email === email);
+    if (!found) throw new Error('No se pudo crear ni localizar el usuario en Auth');
+    userId = found.id;
+  } else {
+    if (!newUser) throw new Error('Error creando usuario');
+    userId = newUser.id;
+  }
+
+  // Upsert del perfil (el trigger puede haberlo creado ya, o puede ser uno existente)
+  await admin.from('profiles').upsert({
+    id:       userId,
+    rol:      'conductor',
     nombre,
     telefono: tel,
-  }).eq('id', user.id);
+  }, { onConflict: 'id' });
 
-  await admin.from('conductores').insert({
-    profile_id:      user.id,
-    nombre_servicio: nombre,
-    email,
-    plazas_vehiculo: 4,
-    activo:          true,
-  });
+  // Insertar o reactivar en conductores
+  const { data: conductorExistente } = await admin
+    .from('conductores').select('id').eq('profile_id', userId).single();
+
+  if (conductorExistente) {
+    await admin.from('conductores').update({
+      nombre_servicio: nombre,
+      email,
+      activo: true,
+    }).eq('profile_id', userId);
+  } else {
+    await admin.from('conductores').insert({
+      profile_id:      userId,
+      nombre_servicio: nombre,
+      email,
+      plazas_vehiculo: 4,
+      activo:          true,
+    });
+  }
 
   redirect('/admin');
 }
