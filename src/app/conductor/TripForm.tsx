@@ -3,6 +3,7 @@ import { useState, useMemo } from 'react';
 import { PARADAS, calcularPrecio, rutaDisponible } from '@/lib/tarifas';
 import type { Parada } from '@/lib/tarifas';
 import { crearViaje } from './actions';
+import DateTimePicker from '@/components/DateTimePicker';
 
 const ORIGENES = PARADAS as unknown as Parada[];
 
@@ -121,32 +122,17 @@ export default function TripForm() {
         </div>
       </div>
 
-      <div className="flex gap-2">
-        <div className="flex-1">
-          <label className="block text-gris text-[10px] mb-1">Fecha de salida</label>
-          <input
-            type="date"
-            name="fecha"
-            required
-            value={fecha}
-            min={new Date().toISOString().split('T')[0]}
-            onChange={e => setFecha(e.target.value)}
-            style={{ colorScheme: 'dark' }}
-            className="w-full bg-[#0D1117] border border-linea rounded-xl px-3 py-2.5 text-blanco text-sm focus:outline-none focus:border-ambar"
-          />
-        </div>
-        <div>
-          <label className="block text-gris text-[10px] mb-1">Hora</label>
-          <input
-            type="time"
-            name="hora"
-            required
-            value={hora}
-            onChange={e => setHora(e.target.value)}
-            style={{ colorScheme: 'dark' }}
-            className="w-28 bg-[#0D1117] border border-linea rounded-xl px-3 py-2.5 text-blanco text-sm focus:outline-none focus:border-ambar"
-          />
-        </div>
+      <div>
+        <label className="block text-gris text-[10px] mb-1">Fecha y hora de salida</label>
+        <DateTimePicker
+          fecha={fecha}
+          hora={hora}
+          minFecha={new Date().toISOString().split('T')[0]}
+          onFecha={setFecha}
+          onHora={setHora}
+        />
+        <input type="hidden" name="fecha" value={fecha} />
+        <input type="hidden" name="hora" value={hora} />
       </div>
 
       <div className="flex gap-3">
