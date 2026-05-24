@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import MakiCarLogo from '@/components/MakiCarLogo';
+import Footer from '@/components/Footer';
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -28,8 +29,8 @@ export default function LegalPage() {
 
         <Section title="Titular del servicio">
           <p>
-            El servicio MakiCar es operado por <strong className="text-blanco">Francisco Javier Benitez Láinez</strong>,
-            con dirección de contacto{' '}
+            El servicio MakiCar es operado por <strong className="text-blanco">espanias.com</strong>,
+            con domicilio en <strong className="text-blanco">M Magdalena, 5. Estepona (Málaga)</strong> y dirección de contacto{' '}
             <a href="mailto:informa@blablaele.com" className="text-ambar">informa@blablaele.com</a>.
           </p>
         </Section>
@@ -56,7 +57,7 @@ export default function LegalPage() {
 
         <Section title="Responsable del tratamiento">
           <p>
-            <strong className="text-blanco">Francisco Javier Benitez Láinez</strong> —{' '}
+            <strong className="text-blanco">espanias.com</strong> · M Magdalena, 5. Estepona (Málaga) —{' '}
             <a href="mailto:informa@blablaele.com" className="text-ambar">informa@blablaele.com</a>
           </p>
         </Section>
@@ -112,13 +113,15 @@ export default function LegalPage() {
         </Section>
 
         <div className="border-t border-linea my-8" />
-        <p className="text-gris text-[12px] text-center pb-8">
+        <p className="text-gris text-[12px] text-center mb-4">
           ¿Tienes preguntas?{' '}
           <a href="mailto:informa@blablaele.com" className="text-ambar underline underline-offset-2">
             informa@blablaele.com
           </a>
         </p>
       </div>
+
+      <Footer />
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import MakiCarLogo from '@/components/MakiCarLogo';
+import Footer from '@/components/Footer';
 
 const FEATURES = [
   {
@@ -140,6 +141,7 @@ export default function ConductoresPage() {
           </Link>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import MakiCarLogo from '@/components/MakiCarLogo';
+import Footer from '@/components/Footer';
 
 const PASOS = [
   {
@@ -136,6 +137,7 @@ export default function PasajerosPage() {
           ¿Eres conductor? Ver tarifas →
         </Link>
       </div>
+      <Footer />
     </div>
   );
 }

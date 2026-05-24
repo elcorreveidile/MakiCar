@@ -13,6 +13,8 @@ import TripCard from './TripCard';
 import MakiCarLogo from '@/components/MakiCarLogo';
 import InviteLink from './InviteLink';
 import AutoRefresh from '@/components/AutoRefresh';
+import InstallPrompt from '@/components/InstallPrompt';
+import Footer from '@/components/Footer';
 
 function formatFecha(iso: string | null) {
   if (!iso) return '—';
@@ -402,6 +404,8 @@ export default async function ConductorPage({
         )}
 
       </div>
+      <InstallPrompt />
+      <Footer />
     </div>
   );
 }
