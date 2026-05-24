@@ -12,6 +12,7 @@ import TripForm from './TripForm';
 import TripCard from './TripCard';
 import MakiCarLogo from '@/components/MakiCarLogo';
 import InviteLink from './InviteLink';
+import AutoRefresh from '@/components/AutoRefresh';
 
 function formatFecha(iso: string | null) {
   if (!iso) return '—';
@@ -136,8 +137,9 @@ export default async function ConductorPage({
       {/* TopBar */}
       <div className="sticky top-0 z-10 bg-[#0D1117] border-b border-linea px-5 pt-10 pb-3.5 flex justify-between items-center">
         <MakiCarLogo />
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <span className="text-gris text-[11px]">Panel conductor</span>
+          <AutoRefresh />
           <form action={cerrarSesionConductor}>
             <button type="submit" className="text-gris text-[11px] border border-linea rounded-lg px-2.5 py-1 font-semibold active:scale-[.97] transition-transform">
               Salir

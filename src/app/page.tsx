@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import MakiCarLogo from '@/components/MakiCarLogo';
 import BottomTabs from '@/components/BottomTabs';
+import AutoRefresh from '@/components/AutoRefresh';
 
 function formatFecha(iso: string) {
   return new Date(iso).toLocaleString('es-ES', {
@@ -47,7 +48,10 @@ export default async function Home() {
     <div className="flex flex-col min-h-screen bg-noche">
       <div className="sticky top-0 z-10 bg-[#0D1117] border-b border-linea px-5 pt-10 pb-3.5 flex justify-between items-center">
         <MakiCarLogo />
-        <span className="text-gris text-[11px]">Hola, {profile?.nombre || 'usuario'}</span>
+        <div className="flex items-center gap-2">
+          <AutoRefresh />
+          <span className="text-gris text-[11px]">Hola, {profile?.nombre || 'usuario'}</span>
+        </div>
       </div>
 
       <div className="flex-1 px-5 py-5 overflow-y-auto">
