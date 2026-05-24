@@ -85,6 +85,8 @@ export interface Database {
           precio: number;
           estado: EstadoTrip;
           created_at: string;
+          puntos_recogida: string[];
+          puntos_llegada: string[];
         };
         Insert: {
           id?: string;
@@ -97,6 +99,8 @@ export interface Database {
           precio?: number;
           estado?: EstadoTrip;
           created_at?: string;
+          puntos_recogida?: string[];
+          puntos_llegada?: string[];
         };
         Update: {
           fecha_hora?: string;
@@ -106,6 +110,8 @@ export interface Database {
           plazas_libres?: number;
           precio?: number;
           estado?: EstadoTrip;
+          puntos_recogida?: string[];
+          puntos_llegada?: string[];
         };
         Relationships: [];
       };

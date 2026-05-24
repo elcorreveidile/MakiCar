@@ -48,6 +48,26 @@ export default async function ReservarPage({
           <p className="text-gris text-[11px] mt-1">
             {trip.plazas_libres} {trip.plazas_libres === 1 ? 'plaza libre' : 'plazas libres'} · precio según parada de bajada
           </p>
+          {trip.puntos_recogida?.length > 0 && (
+            <div className="mt-3 pt-3 border-t border-linea">
+              <p className="text-gris text-[10px] uppercase tracking-wider mb-1">Puntos de recogida</p>
+              <ul className="flex flex-col gap-0.5">
+                {trip.puntos_recogida.map((p: string, i: number) => (
+                  <li key={i} className="text-blanco text-[12px]">· {p}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {trip.puntos_llegada?.length > 0 && (
+            <div className="mt-3 pt-3 border-t border-linea">
+              <p className="text-gris text-[10px] uppercase tracking-wider mb-1">Puntos de llegada</p>
+              <ul className="flex flex-col gap-0.5">
+                {trip.puntos_llegada.map((p: string, i: number) => (
+                  <li key={i} className="text-blanco text-[12px]">· {p}</li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
 
         {trip.plazas_libres > 0 ? (

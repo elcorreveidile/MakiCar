@@ -10,6 +10,48 @@ function destinosPara(origen: Parada): Parada[] {
   return (PARADAS as unknown as Parada[]).filter(p => p !== origen && rutaDisponible(origen, p));
 }
 
+function PuntosInput({ name, label }: { name: string; label: string }) {
+  const [puntos, setPuntos] = useState(['']);
+
+  function update(i: number, v: string) {
+    setPuntos(p => p.map((x, j) => j === i ? v : x));
+  }
+  function add() { setPuntos(p => [...p, '']); }
+  function remove(i: number) { setPuntos(p => p.filter((_, j) => j !== i)); }
+
+  return (
+    <div>
+      <div className="flex justify-between items-center mb-1">
+        <label className="text-gris text-[10px]">{label}</label>
+        <button type="button" onClick={add} className="text-ambar text-[11px] font-semibold">+ Añadir</button>
+      </div>
+      <div className="flex flex-col gap-1.5">
+        {puntos.map((p, i) => (
+          <div key={i} className="flex gap-1.5">
+            <input
+              type="text"
+              name={name}
+              value={p}
+              onChange={e => update(i, e.target.value)}
+              placeholder="Ej: Plaza Nueva, junto al quiosco"
+              className="flex-1 bg-[#0D1117] border border-linea rounded-xl px-3 py-2 text-blanco text-sm focus:outline-none focus:border-ambar"
+            />
+            {puntos.length > 1 && (
+              <button
+                type="button"
+                onClick={() => remove(i)}
+                className="text-gris text-[16px] px-2 leading-none"
+              >
+                ×
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function TripForm() {
   const [origen,   setOrigen]   = useState<Parada>('Granada');
   const [destino,  setDestino]  = useState<Parada>('Málaga');
@@ -118,6 +160,9 @@ export default function TripForm() {
           />
         </div>
       </div>
+
+      <PuntosInput name="puntos_recogida" label="Puntos de recogida (opcional)" />
+      <PuntosInput name="puntos_llegada"  label="Puntos de llegada (opcional)" />
 
       <div className="flex gap-2">
         <button
