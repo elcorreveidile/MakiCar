@@ -43,7 +43,27 @@ export default async function ConductorPage({
   if (!esConductor) redirect('/');
 
   const { data: conductorId } = await supabase.rpc('mi_conductor_id');
-  if (!conductorId) redirect('/');
+  if (!conductorId) {
+    // Do NOT redirect('/') — that loops back here causing ERR_TOO_MANY_REDIRECTS.
+    // Root cause: conductores.profile_id not linked to auth.uid() for this conductor.
+    // Fix by running this SQL in Supabase:
+    //   CREATE OR REPLACE FUNCTION public.mi_conductor_id() RETURNS uuid
+    //   LANGUAGE sql STABLE SECURITY DEFINER AS $$
+    //     SELECT c.id FROM public.conductores c
+    //     JOIN public.profiles p ON p.id = auth.uid()
+    //     WHERE p.rol = 'conductor' AND c.activo = true LIMIT 1;
+    //   $$;
+    return (
+      <div className="min-h-screen bg-noche flex items-center justify-center px-5">
+        <div className="bg-carta border border-linea rounded-2xl p-8 text-center max-w-sm">
+          <h2 className="font-fraunces text-xl text-blanco mb-3">Perfil no vinculado</h2>
+          <p className="text-gris text-sm leading-relaxed">
+            El perfil de conductor no está vinculado. El administrador debe ejecutar el SQL de corrección en Supabase.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const [
     { data: bookings },
