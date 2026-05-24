@@ -136,6 +136,15 @@ export async function crearConductor(formData: FormData) {
           subscriptionStatus = subscription.status;
         }
 
+        // Finalizar y enviar la primera factura inmediatamente
+        const sub = await stripe.subscriptions.retrieve(subscriptionId, {
+          expand: ['latest_invoice'],
+        });
+        const latestInvoice = sub.latest_invoice as import('stripe').Stripe.Invoice | null;
+        if (latestInvoice?.id && latestInvoice.status === 'draft') {
+          await stripe.invoices.finalizeInvoice(latestInvoice.id);
+        }
+
         await admin.from('conductores').update({
           makicar_stripe_customer_id:         customer.id,
           makicar_stripe_subscription_id:     subscriptionId,
