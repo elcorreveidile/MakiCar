@@ -32,6 +32,16 @@ const FEATURES = [
     title: 'Funciona como app',
     desc: 'Instalable en iOS y Android (PWA). Sin tiendas de apps, siempre actualizado.',
   },
+  {
+    icon: '🔒',
+    title: 'Pasajeros vinculados a ti',
+    desc: 'Cada pasajero que entra por tu enlace queda asociado exclusivamente a ti. No compites con otros conductores dentro de la app.',
+  },
+  {
+    icon: '⚖️',
+    title: 'Compromiso garantizado',
+    desc: 'Las cancelaciones con menos de 24 h generan una deuda registrada en el perfil del pasajero, que se salda en el siguiente viaje. Menos no-shows, más fiabilidad.',
+  },
 ];
 
 export default function ConductoresPage() {
