@@ -1,14 +1,13 @@
 'use client';
 import { useState, useMemo } from 'react';
-import { PARADAS, calcularPrecio } from '@/lib/tarifas';
+import { PARADAS, calcularPrecio, rutaDisponible } from '@/lib/tarifas';
 import type { Parada } from '@/lib/tarifas';
 import { crearViaje } from './actions';
 
-const ORIGENES = PARADAS.slice(0, -1) as unknown as Parada[];
+const ORIGENES = PARADAS as unknown as Parada[];
 
 function destinosPara(origen: Parada): Parada[] {
-  const idx = PARADAS.indexOf(origen);
-  return PARADAS.slice(idx + 1) as unknown as Parada[];
+  return (PARADAS as unknown as Parada[]).filter(p => p !== origen && rutaDisponible(origen, p));
 }
 
 export default function TripForm() {
