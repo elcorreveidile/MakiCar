@@ -72,10 +72,11 @@ export default async function ReservarPage({
 
         {trip.plazas_libres > 0 ? (
           <BookingForm trip={{
-            id: trip.id,
-            origen: trip.origen_cabecera,
-            destino: trip.destino_cabecera,
-            fechaHora: trip.fecha_hora,
+            id:           trip.id,
+            origen:       trip.origen_cabecera,
+            destino:      trip.destino_cabecera,
+            fechaHora:    trip.fecha_hora,
+            plazasLibres: trip.plazas_libres,
           }} />
         ) : (
           <div className="text-center py-10">

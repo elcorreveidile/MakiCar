@@ -186,7 +186,7 @@ export default async function ConductorPage({
                   </div>
                   <div className="text-gris text-[12px] leading-relaxed mb-2">
                     {formatFecha(b.fecha_hora_solicitada)}<br />
-                    {b.precio_total} € · {b.forma_pago.toUpperCase()}
+                    {b.num_pasajeros > 1 && `${b.num_pasajeros} pax · `}{b.precio_total} € · {b.forma_pago.toUpperCase()}
                     {b.maleta !== 'no' && ` · Maleta: ${b.maleta}`}
                     {b.mascota !== 'no' && ` · Mascota: ${b.mascota}`}
                   </div>
@@ -242,7 +242,7 @@ export default async function ConductorPage({
                     <span className="text-ruta text-[10px] font-bold bg-[rgba(43,182,164,.14)] px-2 py-0.5 rounded-full">CONFIRMADA</span>
                   </div>
                   <div className="text-gris text-[12px] mb-2">
-                    {formatFecha(b.fecha_hora_solicitada)} · {b.precio_total} €
+                    {formatFecha(b.fecha_hora_solicitada)}{b.num_pasajeros > 1 ? ` · ${b.num_pasajeros} pax` : ''} · {b.precio_total} €
                   </div>
                   <div className="bg-[#0D1117] rounded-lg px-3 py-2 mb-3 flex gap-3 items-start">
                     <div className="w-10 h-10 rounded-full bg-carta border border-linea overflow-hidden flex-shrink-0 flex items-center justify-center">
@@ -328,7 +328,7 @@ export default async function ConductorPage({
                     <span className="text-[#E5544B] text-[10px] font-bold bg-[rgba(229,84,75,.12)] px-2 py-0.5 rounded-full">CANCELADA</span>
                   </div>
                   <div className="text-gris text-[12px] mb-2">
-                    {formatFecha(b.fecha_hora_solicitada)} · {b.precio_total} € · {b.forma_pago.toUpperCase()}
+                    {formatFecha(b.fecha_hora_solicitada)}{b.num_pasajeros > 1 ? ` · ${b.num_pasajeros} pax` : ''} · {b.precio_total} € · {b.forma_pago.toUpperCase()}
                   </div>
                   <div className="flex justify-between items-center bg-[#0D1117] rounded-lg px-3 py-2 mb-3">
                     <div className="text-[12px]">
