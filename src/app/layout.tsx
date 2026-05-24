@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Fraunces, Sora } from 'next/font/google';
 import './globals.css';
+import ServiceWorker from '@/components/ServiceWorker';
 
 const fraunces = Fraunces({
   subsets: ['latin'],
@@ -32,7 +33,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es" className={`${fraunces.variable} ${sora.variable}`}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <ServiceWorker />
+      </body>
     </html>
   );
 }

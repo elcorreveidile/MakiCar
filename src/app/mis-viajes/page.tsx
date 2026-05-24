@@ -5,6 +5,7 @@ import { cancelarEspecial } from './actions';
 import CancelarReservaButton from './CancelarReservaButton';
 import BottomTabs from '@/components/BottomTabs';
 import MakiCarLogo from '@/components/MakiCarLogo';
+import Footer from '@/components/Footer';
 
 const ESTADO_BADGE: Record<string, { label: string; classes: string }> = {
   pendiente:  { label: 'PENDIENTE',  classes: 'text-ambar bg-[rgba(255,182,39,.14)]'  },
@@ -140,6 +141,7 @@ export default async function MisViajesPage() {
 
       </div>
 
+      <Footer />
       <BottomTabs />
     </div>
   );

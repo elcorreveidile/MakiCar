@@ -15,5 +15,7 @@ export default function manifest(): MetadataRoute.Manifest {
       { src: '/icon?size=512', sizes: '512x512', type: 'image/png', purpose: 'any' },
       { src: '/icon?size=512', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
     ],
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ...({ offline_url: '/offline' } as any),
   };
 }
