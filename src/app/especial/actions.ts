@@ -2,6 +2,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { getConductorActivo } from '@/lib/conductores';
 import { redirect } from 'next/navigation';
+import { notificarNuevaSolicitudEspecial } from '@/lib/email';
 
 export async function crearSolicitudEspecial(formData: FormData) {
   const supabase = await createClient();
@@ -21,5 +22,22 @@ export async function crearSolicitudEspecial(formData: FormData) {
   });
 
   if (error) throw new Error(error.message);
+
+  // Notificar al conductor
+  const { data: perfil } = await supabase
+    .from('profiles')
+    .select('nombre')
+    .eq('id', user.id)
+    .single();
+
+  await notificarNuevaSolicitudEspecial({
+    conductorId:  conductor.id,
+    pasajeroNombre: perfil?.nombre ?? 'Pasajero',
+    origenTexto:  formData.get('origen')   as string,
+    destinoTexto: formData.get('destino')  as string,
+    fechaHora:    new Date(formData.get('fecha') as string).toISOString(),
+    numPasajeros: Number(formData.get('pasajeros') || 1),
+  });
+
   redirect('/confirmacion?tipo=especial');
 }
