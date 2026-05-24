@@ -16,12 +16,7 @@ function Seccion({ titulo, children }: { titulo: string; children: React.ReactNo
   );
 }
 
-export default async function AdminPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ error?: string }>;
-}) {
-  const params = await searchParams;
+export default async function AdminPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
@@ -82,12 +77,6 @@ export default async function AdminPage({
       </div>
 
       <div className="flex-1 px-5 py-5 overflow-y-auto pb-8">
-
-        {params.error === 'conductor_con_datos' && (
-          <div className="bg-[rgba(229,84,75,.1)] border border-[rgba(229,84,75,.2)] rounded-xl px-4 py-3 mb-4 text-[13px] text-[#E5544B]">
-            No se puede eliminar: este conductor tiene viajes o reservas en el sistema. Desactívalo en su lugar.
-          </div>
-        )}
 
         {/* ── Lista de conductores ───────────────────────── */}
         <Seccion titulo={`Conductores (${conductores?.length ?? 0})`}>

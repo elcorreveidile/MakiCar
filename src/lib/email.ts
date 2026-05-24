@@ -171,3 +171,43 @@ export async function notificarEspecialRechazada(p: {
 
   await send(to, `Tu solicitud especial no está disponible`, cuerpo);
 }
+
+export async function notificarBajaConductor(p: {
+  pasajeroId: string;
+  origen: string; destino: string; fechaHora: string;
+}): Promise<void> {
+  const to = await emailDeUsuario(p.pasajeroId);
+  const cuerpo = [
+    `Lo sentimos, el conductor con el que tenías reservado un viaje ha dejado de operar en MakiCar.`,
+    ``,
+    `Tu reserva ha sido cancelada automáticamente:`,
+    `Tramo: ${p.origen} → ${p.destino}`,
+    `Fecha: ${formatFecha(p.fechaHora)}`,
+    ``,
+    `No se aplica ninguna penalización por esta cancelación.`,
+    ``,
+    `Si necesitas asistencia, contáctanos: ${SITE}/conductores/contacto`,
+  ].join('\n');
+
+  await send(to, `Tu reserva para ${p.origen} → ${p.destino} ha sido cancelada`, cuerpo);
+}
+
+export async function notificarBajaConductorEspecial(p: {
+  pasajeroId: string;
+  origenTexto: string; destinoTexto: string; fechaHora: string;
+}): Promise<void> {
+  const to = await emailDeUsuario(p.pasajeroId);
+  const cuerpo = [
+    `Lo sentimos, el conductor con el que tenías un servicio especial ha dejado de operar en MakiCar.`,
+    ``,
+    `Tu solicitud ha sido cancelada automáticamente:`,
+    `Trayecto: ${p.origenTexto} → ${p.destinoTexto}`,
+    `Fecha: ${formatFecha(p.fechaHora)}`,
+    ``,
+    `No se aplica ninguna penalización por esta cancelación.`,
+    ``,
+    `Si necesitas asistencia, contáctanos: ${SITE}/conductores/contacto`,
+  ].join('\n');
+
+  await send(to, `Tu servicio especial ha sido cancelado`, cuerpo);
+}

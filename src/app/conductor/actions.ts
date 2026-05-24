@@ -161,14 +161,19 @@ export async function crearViaje(formData: FormData) {
 
   const plazas = parseInt(formData.get('plazas') as string, 10);
   const precio = parseFloat(formData.get('precio') as string);
+  const puntosRecogida = formData.getAll('puntos_recogida').map(String).filter(Boolean);
+  const puntosLlegada  = formData.getAll('puntos_llegada').map(String).filter(Boolean);
+
   await supabase.from('trips').insert({
-    conductor_id:     conductorId,
-    origen_cabecera:  formData.get('origen') as string,
-    destino_cabecera: formData.get('destino') as string,
-    fecha_hora:       formData.get('fecha_hora') as string,
-    plazas_totales:   plazas,
-    plazas_libres:    plazas,
+    conductor_id:      conductorId,
+    origen_cabecera:   formData.get('origen') as string,
+    destino_cabecera:  formData.get('destino') as string,
+    fecha_hora:        formData.get('fecha_hora') as string,
+    plazas_totales:    plazas,
+    plazas_libres:     plazas,
     precio,
+    puntos_recogida:   puntosRecogida,
+    puntos_llegada:    puntosLlegada,
   });
   revalidatePath('/conductor');
 }
@@ -189,11 +194,16 @@ export async function editarViaje(formData: FormData) {
   const delta       = nuevasPlazas - trip.plazas_totales;
   const nuevasLibres = Math.max(0, trip.plazas_libres + delta);
 
+  const puntosRecogida = formData.getAll('puntos_recogida').map(String).filter(Boolean);
+  const puntosLlegada  = formData.getAll('puntos_llegada').map(String).filter(Boolean);
+
   const { error } = await supabase.from('trips').update({
-    fecha_hora:     fechaHora,
-    plazas_totales: nuevasPlazas,
-    plazas_libres:  nuevasLibres,
+    fecha_hora:      fechaHora,
+    plazas_totales:  nuevasPlazas,
+    plazas_libres:   nuevasLibres,
     precio,
+    puntos_recogida: puntosRecogida,
+    puntos_llegada:  puntosLlegada,
   }).eq('id', tripId);
   if (error) throw new Error(error.message);
   revalidatePath('/conductor');

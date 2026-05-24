@@ -34,17 +34,49 @@ export default async function Home() {
   if (isConductor) redirect('/conductor');
   if (isAdmin)     redirect('/admin');
 
-  let trips = null;
-  if (profile?.conductor_id) {
-    const { data } = await supabase
-      .from('trips')
-      .select('*')
-      .eq('conductor_id', profile.conductor_id)
-      .eq('estado', 'abierto')
-      .gte('fecha_hora', new Date().toISOString())
-      .order('fecha_hora', { ascending: true });
-    trips = data;
+  // Sin conductor vinculado: usuario nuevo o conductor dado de baja
+  if (!profile?.conductor_id) {
+    return (
+      <div className="flex flex-col min-h-screen bg-noche">
+        <div className="bg-[#0D1117] border-b border-linea px-5 pt-10 pb-4 flex items-center gap-3">
+          <MakiCarLogo />
+        </div>
+        <div className="flex-1 flex flex-col items-center justify-center px-5 py-10">
+          <div className="bg-carta border border-linea rounded-2xl p-7 w-full max-w-sm text-center">
+            <p className="text-[36px] mb-4">🚗</p>
+            <p className="font-fraunces text-[20px] font-semibold mb-3">Sin conductor asociado</p>
+            <p className="text-gris text-[13px] leading-relaxed mb-5">
+              Para reservar viajes necesitas estar vinculado a un conductor que use MakiCar.
+              Pídele a tu conductor que te envíe su <span className="text-blanco font-semibold">enlace de pasajero</span> y úsalo para acceder.
+            </p>
+            <div className="border-t border-linea pt-4 flex flex-col gap-2">
+              <Link
+                href="/pasajeros"
+                className="block w-full text-center text-ambar text-[13px] underline underline-offset-2"
+              >
+                ¿Cómo funciona MakiCar?
+              </Link>
+              <Link
+                href="/conductores"
+                className="block w-full text-center text-gris text-[12px] underline underline-offset-2"
+              >
+                ¿Eres conductor? Ver información →
+              </Link>
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
   }
+
+  const { data: trips } = await supabase
+    .from('trips')
+    .select('*')
+    .eq('conductor_id', profile.conductor_id)
+    .eq('estado', 'abierto')
+    .gte('fecha_hora', new Date().toISOString())
+    .order('fecha_hora', { ascending: true });
 
   return (
     <div className="flex flex-col min-h-screen bg-noche">
@@ -60,12 +92,7 @@ export default async function Home() {
         <h2 className="font-fraunces text-[23px] font-semibold mb-1">Viajes disponibles</h2>
         <p className="text-gris text-[13px] mb-5">Próximos viajes con plaza libre</p>
 
-        {!profile?.conductor_id ? (
-          <div className="bg-carta border border-linea rounded-xl p-6 text-center mb-4">
-            <p className="text-blanco font-semibold mb-2">Sin conductor asignado</p>
-            <p className="text-gris text-sm">Contacta con tu conductor para recibir tu enlace de acceso.</p>
-          </div>
-        ) : !trips?.length ? (
+        {!trips?.length ? (
           <div className="bg-carta border border-linea rounded-xl p-6 text-center mb-4">
             <p className="text-gris text-sm mb-1">No hay viajes programados próximamente.</p>
             <p className="text-gris text-xs">Consulta más tarde o solicita un servicio especial.</p>
