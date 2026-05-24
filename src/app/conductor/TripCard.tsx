@@ -96,6 +96,7 @@ export default function TripCard({ trip }: { trip: Trip }) {
                 defaultValue={toLocalDate(trip.fecha_hora)}
                 required
                 className="w-full bg-[#0D1117] border border-linea rounded-xl px-3 py-2.5 text-blanco text-sm focus:outline-none focus:border-ambar"
+                style={{ colorScheme: 'dark' }}
               />
             </div>
             <div>
@@ -106,6 +107,7 @@ export default function TripCard({ trip }: { trip: Trip }) {
                 defaultValue={toLocalTime(trip.fecha_hora)}
                 required
                 className="w-28 bg-[#0D1117] border border-linea rounded-xl px-3 py-2.5 text-blanco text-sm focus:outline-none focus:border-ambar"
+                style={{ colorScheme: 'dark' }}
               />
             </div>
           </div>

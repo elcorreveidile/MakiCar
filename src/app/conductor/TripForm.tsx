@@ -131,6 +131,7 @@ export default function TripForm() {
             value={fecha}
             min={new Date().toISOString().split('T')[0]}
             onChange={e => setFecha(e.target.value)}
+            style={{ colorScheme: 'dark' }}
             className="w-full bg-[#0D1117] border border-linea rounded-xl px-3 py-2.5 text-blanco text-sm focus:outline-none focus:border-ambar"
           />
         </div>
@@ -142,6 +143,7 @@ export default function TripForm() {
             required
             value={hora}
             onChange={e => setHora(e.target.value)}
+            style={{ colorScheme: 'dark' }}
             className="w-28 bg-[#0D1117] border border-linea rounded-xl px-3 py-2.5 text-blanco text-sm focus:outline-none focus:border-ambar"
           />
         </div>
