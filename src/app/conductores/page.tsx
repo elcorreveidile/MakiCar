@@ -67,15 +67,15 @@ export default function ConductoresPage() {
         <div className="bg-[rgba(255,182,39,.08)] border-2 border-ambar rounded-2xl p-5 mb-4">
           <div className="flex justify-between items-start mb-2">
             <p className="text-ambar text-[11px] font-bold uppercase tracking-widest">Oferta de lanzamiento</p>
-            <span className="text-[10px] font-bold text-noche bg-ambar px-2 py-0.5 rounded-full">20 primeros</span>
+            <span className="text-[10px] font-bold text-noche bg-ambar px-2 py-0.5 rounded-full">10 primeros</span>
           </div>
           <p className="font-fraunces text-[32px] font-semibold text-blanco leading-none mb-1">
-            170 €<span className="text-[16px] text-gris font-normal"> pago único</span>
+            Alta gratis
           </p>
-          <p className="text-gris text-[13px] mb-3">
-            Cubre la instalación y el primer año completo de servicio.
+          <p className="text-gris text-[13px] mb-1">
+            Sin pago inicial. Solo <span className="text-blanco font-semibold">10 €/mes</span> durante el primer año.
           </p>
-          <div className="border-t border-ambar/20 pt-3">
+          <div className="border-t border-ambar/20 pt-3 mt-3">
             <p className="text-gris text-[12px]">A partir del segundo año: <span className="text-blanco font-semibold">25 €/mes</span> o <span className="text-blanco font-semibold">200 €/año</span></p>
           </div>
         </div>
