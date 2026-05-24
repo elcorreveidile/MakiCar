@@ -191,6 +191,11 @@ export async function eliminarConductor(formData: FormData) {
     .eq('id', conductorId)
     .single();
 
+  // Eliminar filas que referencian al conductor (FKs sin CASCADE)
+  await admin.from('bookings').delete().eq('conductor_id', conductorId);
+  await admin.from('trips').delete().eq('conductor_id', conductorId);
+  await admin.from('special_requests').delete().eq('conductor_id', conductorId);
+
   await admin.from('conductores').delete().eq('id', conductorId);
 
   if (conductor?.profile_id) {
