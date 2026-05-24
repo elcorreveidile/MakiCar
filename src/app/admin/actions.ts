@@ -62,6 +62,7 @@ export async function crearConductor(formData: FormData) {
   if (conductorExistente) {
     const { error: updateError } = await admin.from('conductores').update({
       nombre_servicio: nombre,
+      email,
       activo:          true,
     }).eq('profile_id', userId);
     if (updateError) throw new Error(`Error actualizando conductor: ${updateError.message}`);
@@ -69,6 +70,7 @@ export async function crearConductor(formData: FormData) {
     const { error: insertError } = await admin.from('conductores').insert({
       profile_id:      userId,
       nombre_servicio: nombre,
+      email,
       plazas_vehiculo: 4,
       activo:          true,
     });
