@@ -186,6 +186,11 @@ export default async function ConductorPage({
                     {b.maleta !== 'no' && ` · Maleta: ${b.maleta}`}
                     {b.mascota !== 'no' && ` · Mascota: ${b.mascota}`}
                   </div>
+                  {b.notas && (
+                    <div className="bg-[rgba(155,140,255,.08)] border border-[rgba(155,140,255,.2)] rounded-lg px-3 py-2 mb-2 text-[12px] text-violeta leading-relaxed">
+                      💬 {b.notas}
+                    </div>
+                  )}
                   <div className="bg-[#0D1117] rounded-lg px-3 py-2 mb-3 flex gap-3 items-start">
                     <div className="w-10 h-10 rounded-full bg-carta border border-linea overflow-hidden flex-shrink-0 flex items-center justify-center">
                       {cliente?.avatar_url

@@ -120,6 +120,7 @@ export interface Database {
           destino: string;
           direccion_recogida: string | null;
           direccion_destino: string | null;
+          notas: string | null;
           es_noche: boolean;
           precio_base: number;
           maleta: TipoMaleta;
@@ -143,6 +144,7 @@ export interface Database {
           destino: string;
           direccion_recogida?: string | null;
           direccion_destino?: string | null;
+          notas?: string | null;
           es_noche: boolean;
           precio_base: number;
           maleta?: TipoMaleta;
@@ -163,6 +165,7 @@ export interface Database {
           destino?: string;
           direccion_recogida?: string | null;
           direccion_destino?: string | null;
+          notas?: string | null;
           es_noche?: boolean;
           precio_base?: number;
           maleta?: TipoMaleta;
