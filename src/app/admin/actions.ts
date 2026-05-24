@@ -26,12 +26,13 @@ export async function crearConductor(formData: FormData) {
   });
   if (error || !user) throw new Error(error?.message ?? 'Error creando usuario');
 
-  await admin.from('profiles').insert({
-    id:      user.id,
+  // El trigger on_auth_user_created ya insertó el perfil con rol='cliente'.
+  // Solo actualizamos los campos que necesitamos cambiar.
+  await admin.from('profiles').update({
     rol:     'conductor',
     nombre,
     telefono: tel,
-  });
+  }).eq('id', user.id);
 
   await admin.from('conductores').insert({
     profile_id:      user.id,
@@ -41,7 +42,7 @@ export async function crearConductor(formData: FormData) {
     activo:          true,
   });
 
-  revalidatePath('/admin');
+  redirect('/admin');
 }
 
 export async function toggleConductor(formData: FormData) {
