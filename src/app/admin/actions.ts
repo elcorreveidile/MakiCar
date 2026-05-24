@@ -52,6 +52,38 @@ export async function toggleConductor(formData: FormData) {
   revalidatePath('/admin');
 }
 
+export async function eliminarConductor(formData: FormData) {
+  await verificarSuperadmin();
+  const admin       = createAdminClient();
+  const conductorId = formData.get('conductor_id') as string;
+
+  // Verificar que no tenga viajes ni reservas vinculados
+  const [{ count: nTrips }, { count: nBookings }] = await Promise.all([
+    admin.from('trips').select('*', { count: 'exact', head: true }).eq('conductor_id', conductorId),
+    admin.from('bookings').select('*', { count: 'exact', head: true }).eq('conductor_id', conductorId),
+  ]);
+
+  if ((nTrips ?? 0) > 0 || (nBookings ?? 0) > 0) {
+    redirect('/admin?error=conductor_con_datos');
+  }
+
+  // Obtener profile_id antes de borrar
+  const { data: conductor } = await admin
+    .from('conductores')
+    .select('profile_id')
+    .eq('id', conductorId)
+    .single();
+
+  await admin.from('conductores').delete().eq('id', conductorId);
+
+  if (conductor?.profile_id) {
+    await admin.from('profiles').delete().eq('id', conductor.profile_id);
+    await admin.auth.admin.deleteUser(conductor.profile_id);
+  }
+
+  revalidatePath('/admin');
+}
+
 export async function cerrarSesionAdmin() {
   const supabase = await createClient();
   await supabase.auth.signOut();
