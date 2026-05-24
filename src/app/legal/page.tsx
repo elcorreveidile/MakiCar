@@ -21,7 +21,7 @@ export default function LegalPage() {
         <Link href="/" className="text-gris text-xs mb-6 block">← Volver</Link>
 
         <h1 className="font-fraunces text-[26px] font-semibold mb-1">Aviso legal y privacidad</h1>
-        <p className="text-gris text-[12px] mb-8">Última actualización: mayo de 2025</p>
+        <p className="text-gris text-[12px] mb-8">Última actualización: mayo de 2026</p>
 
         {/* AVISO LEGAL */}
         <p className="text-gris text-xs uppercase tracking-widest mb-4">Aviso legal</p>

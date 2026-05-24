@@ -6,6 +6,7 @@ import Link from 'next/link';
 import MakiCarLogo from '@/components/MakiCarLogo';
 import BottomTabs from '@/components/BottomTabs';
 import AutoRefresh from '@/components/AutoRefresh';
+import InstallPrompt from '@/components/InstallPrompt';
 
 function formatFecha(iso: string) {
   return new Date(iso).toLocaleString('es-ES', {
@@ -104,6 +105,7 @@ export default async function Home() {
         </Link>
       </div>
 
+      <InstallPrompt />
       <BottomTabs />
     </div>
   );
