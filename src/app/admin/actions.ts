@@ -4,6 +4,9 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { notificarBajaConductor, notificarBajaConductorEspecial } from '@/lib/email';
+import { getMakicarStripe, PRICE_LAUNCH, PRICE_STANDARD, PRICE_SETUP } from '@/lib/stripe/makicar';
+
+const PLAZAS_LANZAMIENTO = 10;
 
 async function verificarSuperadmin() {
   const supabase = await createClient();
@@ -70,6 +73,79 @@ export async function crearConductor(formData: FormData) {
       activo:          true,
     });
     if (insertError) throw new Error(`Error insertando conductor: ${insertError.message}`);
+  }
+
+  // ── Facturación Stripe del operador ────────────────────
+  const stripe = getMakicarStripe();
+  if (stripe) {
+    try {
+      // Contar conductores activos para elegir tarifa lanzamiento o estándar
+      const { count } = await admin
+        .from('conductores')
+        .select('*', { count: 'exact', head: true })
+        .eq('activo', true);
+      const esLanzamiento = (count ?? 0) <= PLAZAS_LANZAMIENTO;
+      const priceId = esLanzamiento ? PRICE_LAUNCH : PRICE_STANDARD;
+
+      if (priceId) {
+        const customer = await stripe.customers.create({
+          email,
+          name: nombre,
+          metadata: { makicar_profile_id: userId },
+        });
+
+        let subscriptionId: string;
+        let subscriptionStatus: string;
+
+        if (esLanzamiento && PRICE_STANDARD) {
+          // Oferta lanzamiento: 12 meses a 10 €/mes, luego cambia sola a 25 €/mes
+          // Fin de fase 1 = ahora + 365 días (1 año de oferta de lanzamiento)
+          const unAñoDespues = Math.floor(Date.now() / 1000) + 365 * 24 * 60 * 60;
+          const schedule = await stripe.subscriptionSchedules.create({
+            customer:     customer.id,
+            start_date:   'now',
+            end_behavior: 'release',
+            phases: [
+              {
+                items:             [{ price: PRICE_LAUNCH }],
+                end_date:          unAñoDespues,
+                collection_method: 'send_invoice',
+                invoice_settings:  { days_until_due: 30 },
+              },
+              {
+                items:             [{ price: PRICE_STANDARD }],
+                collection_method: 'send_invoice',
+                invoice_settings:  { days_until_due: 30 },
+              },
+            ],
+          });
+          subscriptionId     = schedule.subscription as string;
+          subscriptionStatus = 'active';
+        } else {
+          // Estándar: 25 €/mes + alta única de 150 € en la primera factura
+          const params: Parameters<typeof stripe.subscriptions.create>[0] = {
+            customer:          customer.id,
+            items:             [{ price: PRICE_STANDARD }],
+            collection_method: 'send_invoice',
+            days_until_due:    30,
+            metadata:          { makicar_profile_id: userId },
+          };
+          if (PRICE_SETUP) params.add_invoice_items = [{ price: PRICE_SETUP }];
+          const subscription = await stripe.subscriptions.create(params);
+          subscriptionId     = subscription.id;
+          subscriptionStatus = subscription.status;
+        }
+
+        await admin.from('conductores').update({
+          makicar_stripe_customer_id:         customer.id,
+          makicar_stripe_subscription_id:     subscriptionId,
+          makicar_stripe_subscription_status: subscriptionStatus,
+        }).eq('profile_id', userId);
+      }
+    } catch (err) {
+      // No bloqueamos la creación del conductor si Stripe falla
+      console.error('[MakiCar Stripe] Error creando suscripción:', err);
+    }
   }
 
   redirect('/admin');
@@ -215,12 +291,22 @@ export async function eliminarConductor(formData: FormData) {
     }
   }
 
-  // Obtener profile_id antes de borrar
+  // Obtener datos antes de borrar (profile_id + Stripe IDs)
   const { data: conductor } = await admin
     .from('conductores')
-    .select('profile_id')
+    .select('profile_id, makicar_stripe_customer_id, makicar_stripe_subscription_id')
     .eq('id', conductorId)
     .single();
+
+  // Cancelar suscripción Stripe del operador si existe
+  const stripe = getMakicarStripe();
+  if (stripe && conductor?.makicar_stripe_subscription_id) {
+    try {
+      await stripe.subscriptions.cancel(conductor.makicar_stripe_subscription_id);
+    } catch (err) {
+      console.error('[MakiCar Stripe] Error cancelando suscripción:', err);
+    }
+  }
 
   // Eliminar filas que referencian al conductor (FKs sin CASCADE)
   await admin.from('bookings').delete().eq('conductor_id', conductorId);

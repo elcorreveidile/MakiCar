@@ -51,6 +51,9 @@ export interface Database {
           email: string | null;
           plazas_vehiculo: number;
           stripe_account_id: string | null;
+          makicar_stripe_customer_id: string | null;
+          makicar_stripe_subscription_id: string | null;
+          makicar_stripe_subscription_status: string;
           activo: boolean;
           created_at: string;
         };
@@ -61,6 +64,9 @@ export interface Database {
           email?: string | null;
           plazas_vehiculo?: number;
           stripe_account_id?: string | null;
+          makicar_stripe_customer_id?: string | null;
+          makicar_stripe_subscription_id?: string | null;
+          makicar_stripe_subscription_status?: string;
           activo?: boolean;
           created_at?: string;
         };
@@ -69,6 +75,9 @@ export interface Database {
           email?: string | null;
           plazas_vehiculo?: number;
           stripe_account_id?: string | null;
+          makicar_stripe_customer_id?: string | null;
+          makicar_stripe_subscription_id?: string | null;
+          makicar_stripe_subscription_status?: string;
           activo?: boolean;
         };
         Relationships: [];
