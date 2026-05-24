@@ -28,8 +28,8 @@ export default function LegalPage() {
 
         <Section title="Titular del servicio">
           <p>
-            El servicio MakiCar es operado por <strong className="text-blanco">[Nombre del titular]</strong>,
-            con domicilio en <strong className="text-blanco">[Dirección]</strong> y dirección de contacto{' '}
+            El servicio MakiCar es operado por <strong className="text-blanco">Francisco Javier Benitez Láinez</strong>,
+            con dirección de contacto{' '}
             <a href="mailto:informa@blablaele.com" className="text-ambar">informa@blablaele.com</a>.
           </p>
         </Section>
@@ -56,7 +56,7 @@ export default function LegalPage() {
 
         <Section title="Responsable del tratamiento">
           <p>
-            <strong className="text-blanco">[Nombre del titular]</strong> —{' '}
+            <strong className="text-blanco">Francisco Javier Benitez Láinez</strong> —{' '}
             <a href="mailto:informa@blablaele.com" className="text-ambar">informa@blablaele.com</a>
           </p>
         </Section>
