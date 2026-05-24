@@ -64,6 +64,13 @@ export default async function LoginPage({
             >
               Enviar enlace de acceso
             </button>
+
+            <p className="text-center text-gris text-xs pt-1">
+              ¿Eres conductor?{' '}
+              <a href="/conductores" className="text-ambar underline underline-offset-2">
+                Conoce nuestras tarifas
+              </a>
+            </p>
           </form>
         )}
       </div>
