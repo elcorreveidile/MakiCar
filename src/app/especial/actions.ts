@@ -11,19 +11,22 @@ export async function crearSolicitudEspecial(formData: FormData) {
 
   const conductor = await getConductorActivo();
 
+  const fechaStr = formData.get('fecha') as string;
+  const horaStr  = formData.get('hora')  as string;
+  const fechaHora = new Date(`${fechaStr}T${horaStr}`).toISOString();
+
   const { error } = await supabase.from('special_requests').insert({
     conductor_id:  conductor.id,
     cliente_id:    user.id,
     origen_texto:  formData.get('origen')   as string,
     destino_texto: formData.get('destino')  as string,
-    fecha_hora:    new Date(formData.get('fecha') as string).toISOString(),
+    fecha_hora:    fechaHora,
     num_pasajeros: Number(formData.get('pasajeros') || 1),
     estado:        'pendiente',
   });
 
   if (error) throw new Error(error.message);
 
-  // Notificar al conductor
   const { data: perfil } = await supabase
     .from('profiles')
     .select('nombre')
@@ -31,12 +34,12 @@ export async function crearSolicitudEspecial(formData: FormData) {
     .single();
 
   await notificarNuevaSolicitudEspecial({
-    conductorId:  conductor.id,
+    conductorId:    conductor.id,
     pasajeroNombre: perfil?.nombre ?? 'Pasajero',
-    origenTexto:  formData.get('origen')   as string,
-    destinoTexto: formData.get('destino')  as string,
-    fechaHora:    new Date(formData.get('fecha') as string).toISOString(),
-    numPasajeros: Number(formData.get('pasajeros') || 1),
+    origenTexto:    formData.get('origen')  as string,
+    destinoTexto:   formData.get('destino') as string,
+    fechaHora,
+    numPasajeros:   Number(formData.get('pasajeros') || 1),
   });
 
   redirect('/confirmacion?tipo=especial');
