@@ -104,6 +104,19 @@ export default function ConductoresPage() {
           ))}
         </div>
 
+        {/* Loyalty narrative */}
+        <div className="border-l-2 border-ambar pl-4 mb-8">
+          <p className="font-fraunces text-[17px] font-semibold mb-2 leading-snug">
+            Tus pasajeros, no los de la plataforma
+          </p>
+          <p className="text-gris text-[13px] leading-relaxed">
+            Cada persona que reserva contigo queda vinculada a ti. Con el tiempo conoces sus rutas,
+            sus horarios habituales y sus preferencias. La app guarda el historial por ti: quién
+            viaja siempre los lunes, quién suele llevar maleta, quién nunca ha cancelado.
+            Esa relación es tuya — no de ningún intermediario.
+          </p>
+        </div>
+
         {/* CTA */}
         <div className="bg-carta border border-linea rounded-2xl p-5 text-center mb-6">
           <p className="font-fraunces text-[18px] font-semibold mb-1">¿Te interesa?</p>
@@ -118,9 +131,14 @@ export default function ConductoresPage() {
           </Link>
         </div>
 
-        <Link href="/login" className="block text-center text-gris text-xs underline underline-offset-2 pb-8">
-          ¿Ya tienes cuenta? Entrar →
-        </Link>
+        <div className="flex flex-col gap-2 items-center pb-8">
+          <Link href="/login" className="text-gris text-xs underline underline-offset-2">
+            ¿Ya tienes cuenta? Entrar →
+          </Link>
+          <Link href="/pasajeros" className="text-gris text-xs underline underline-offset-2">
+            ¿Eres pasajero? Ver cómo funciona →
+          </Link>
+        </div>
       </div>
     </div>
   );
