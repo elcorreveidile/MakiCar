@@ -10,7 +10,7 @@ export default function InviteLink({ url }: { url: string }) {
     setTimeout(() => setCopiado(false), 2500);
   }
 
-  const mensajeWa = `¡Hola! Te invito a reservar plaza en MakiCar 🚗\nEntra con tu email en este enlace y empieza a reservar:\n${url}`;
+  const mensajeWa = `¡Hola! Te invito a reservar plaza en MakiCar.\nEntra con tu email en este enlace y empieza a reservar:\n${url}`;
   const waUrl = `https://wa.me/?text=${encodeURIComponent(mensajeWa)}`;
 
   return (
