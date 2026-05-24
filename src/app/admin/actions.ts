@@ -127,14 +127,61 @@ export async function eliminarConductor(formData: FormData) {
   const admin       = createAdminClient();
   const conductorId = formData.get('conductor_id') as string;
 
-  // Verificar que no tenga viajes ni reservas vinculados
-  const [{ count: nTrips }, { count: nBookings }] = await Promise.all([
-    admin.from('trips').select('*', { count: 'exact', head: true }).eq('conductor_id', conductorId),
-    admin.from('bookings').select('*', { count: 'exact', head: true }).eq('conductor_id', conductorId),
-  ]);
+  // Cancelar viajes abiertos, reservas activas y especiales pendientes antes de borrar
+  const { data: trips } = await admin
+    .from('trips')
+    .select('id')
+    .eq('conductor_id', conductorId)
+    .eq('estado', 'abierto');
 
-  if ((nTrips ?? 0) > 0 || (nBookings ?? 0) > 0) {
-    redirect('/admin?error=conductor_con_datos');
+  const tripIds = (trips ?? []).map(t => t.id);
+
+  if (tripIds.length > 0) {
+    const { data: bookings } = await admin
+      .from('bookings')
+      .select('id, cliente_id, origen, destino, fecha_hora_solicitada')
+      .in('trip_id', tripIds)
+      .in('estado', ['pendiente', 'confirmada']);
+
+    if (bookings && bookings.length > 0) {
+      await admin
+        .from('bookings')
+        .update({ estado: 'cancelada', penalizacion: 0, cancelada_at: new Date().toISOString() })
+        .in('id', bookings.map(b => b.id));
+
+      for (const b of bookings) {
+        await notificarBajaConductor({
+          pasajeroId: b.cliente_id,
+          origen:     b.origen,
+          destino:    b.destino,
+          fechaHora:  b.fecha_hora_solicitada ?? '',
+        });
+      }
+    }
+
+    await admin.from('trips').update({ estado: 'cerrado' }).in('id', tripIds);
+  }
+
+  const { data: especiales } = await admin
+    .from('special_requests')
+    .select('id, cliente_id, origen_texto, destino_texto, fecha_hora')
+    .eq('conductor_id', conductorId)
+    .in('estado', ['pendiente', 'confirmada']);
+
+  if (especiales && especiales.length > 0) {
+    await admin
+      .from('special_requests')
+      .update({ estado: 'cancelada' })
+      .in('id', especiales.map(s => s.id));
+
+    for (const s of especiales) {
+      await notificarBajaConductorEspecial({
+        pasajeroId:   s.cliente_id,
+        origenTexto:  s.origen_texto,
+        destinoTexto: s.destino_texto,
+        fechaHora:    s.fecha_hora,
+      });
+    }
   }
 
   // Obtener profile_id antes de borrar
