@@ -65,12 +65,20 @@ export default async function LoginPage({
               Enviar enlace de acceso
             </button>
 
-            <p className="text-center text-gris text-xs pt-1">
-              ¿Eres conductor?{' '}
-              <a href="/conductores" className="text-ambar underline underline-offset-2">
-                Conoce nuestras tarifas
-              </a>
-            </p>
+            <div className="flex flex-col gap-1.5 items-center pt-1">
+              <p className="text-gris text-xs">
+                ¿Eres conductor?{' '}
+                <a href="/conductores" className="text-ambar underline underline-offset-2">
+                  Conoce nuestras tarifas
+                </a>
+              </p>
+              <p className="text-gris text-xs">
+                ¿Primera vez?{' '}
+                <a href="/pasajeros" className="text-ruta underline underline-offset-2">
+                  Cómo funciona MakiCar
+                </a>
+              </p>
+            </div>
           </form>
         )}
       </div>
