@@ -57,6 +57,7 @@ export default async function AdminPage() {
     { data: perfiles },
     { data: tripsRaw },
     { data: bookingsRaw },
+    authUsersResult,
   ] = await Promise.all([
     profileIds.length > 0
       ? admin.from('profiles').select('id, nombre, telefono').in('id', profileIds)
@@ -67,9 +68,15 @@ export default async function AdminPage() {
     conductorIds.length > 0
       ? admin.from('bookings').select('conductor_id').in('conductor_id', conductorIds)
       : Promise.resolve({ data: [] as { conductor_id: string }[] }),
+    profileIds.length > 0
+      ? admin.auth.admin.listUsers({ perPage: 1000 })
+      : Promise.resolve({ data: { users: [] } }),
   ]);
 
   const perfilMap = Object.fromEntries((perfiles ?? []).map(p => [p.id, p]));
+  const authEmailMap = Object.fromEntries(
+    (authUsersResult.data?.users ?? []).map(u => [u.id, u.email ?? ''])
+  );
 
   const tripsCount = (tripsRaw ?? []).reduce((acc, t) => {
     acc[t.conductor_id] = (acc[t.conductor_id] ?? 0) + 1;
@@ -115,7 +122,7 @@ export default async function AdminPage() {
                       <BillingBadge status={c.makicar_stripe_subscription_status ?? 'sin_suscripcion'} />
                     </div>
                   </div>
-                  <p className="text-gris text-[12px]">{c.email}</p>
+                  <p className="text-gris text-[12px]">{c.email ?? authEmailMap[c.profile_id] ?? ''}</p>
                   {perfil?.telefono && <p className="text-gris text-[12px]">{perfil.telefono}</p>}
                   <div className="flex gap-4 my-2">
                     <span className="text-gris text-[11px]">{tripsCount[c.id] ?? 0} viajes</span>

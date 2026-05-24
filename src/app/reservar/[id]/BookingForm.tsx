@@ -9,6 +9,7 @@ interface Trip {
   origen: string;
   destino: string;
   fechaHora: string;
+  plazasLibres: number;
 }
 
 function paradasDisponibles(origen: string, destino: string): Parada[] {
@@ -32,8 +33,11 @@ export default function BookingForm({ trip }: { trip: Trip }) {
   const [destinoPasajero, setDestinoPasajero] = useState<Parada>(
     paradas[paradas.length - 1] ?? (trip.destino as Parada)
   );
+  const [numPasajeros, setNumPasajeros] = useState(1);
   const [maleta,  setMaleta]  = useState('no');
   const [mascota, setMascota] = useState('no');
+
+  const maxPasajeros = Math.min(4, trip.plazasLibres);
 
   const precioBase = useMemo(() => {
     try {
@@ -54,12 +58,13 @@ export default function BookingForm({ trip }: { trip: Trip }) {
   else if (maleta  === 'asiento') suplementos += precioBase;
   if (mascota === 'pies')    suplementos += 5;
   else if (mascota === 'asiento') suplementos += precioBase;
-  const total = precioBase + suplementos;
+  const total = precioBase * numPasajeros + suplementos;
 
   return (
     <form action={reservarEnViaje} className="flex flex-col gap-3.5">
       <input type="hidden" name="trip_id"          value={trip.id} />
       <input type="hidden" name="destino_pasajero" value={destinoPasajero} />
+      <input type="hidden" name="num_pasajeros"    value={numPasajeros} />
 
       {/* Parada de bajada — solo se muestra si hay más de una opción */}
       {paradas.length > 1 && (
@@ -74,6 +79,26 @@ export default function BookingForm({ trip }: { trip: Trip }) {
           </select>
         </div>
       )}
+
+      <div>
+        <label className="block text-gris text-xs mb-1.5">Número de pasajeros</label>
+        <div className="flex gap-2">
+          {Array.from({ length: maxPasajeros }, (_, i) => i + 1).map(n => (
+            <button
+              key={n}
+              type="button"
+              onClick={() => setNumPasajeros(n)}
+              className={`flex-1 py-2.5 rounded-xl text-sm font-bold border transition-colors ${
+                numPasajeros === n
+                  ? 'bg-ambar text-noche border-ambar'
+                  : 'bg-[#0D1117] text-gris border-linea'
+              }`}
+            >
+              {n}
+            </button>
+          ))}
+        </div>
+      </div>
 
       <div>
         <label className="block text-gris text-xs mb-1.5">Dirección de recogida (opcional)</label>
@@ -151,8 +176,8 @@ export default function BookingForm({ trip }: { trip: Trip }) {
       {/* Resumen de precio */}
       <div className="bg-carta border border-linea rounded-xl p-4">
         <div className="flex justify-between text-[13px] py-1 text-gris">
-          <span>{trip.origen} → {destinoPasajero}</span>
-          <span className="text-blanco">{precioBase} €</span>
+          <span>{trip.origen} → {destinoPasajero}{numPasajeros > 1 ? ` · ${numPasajeros} pasajeros` : ''}</span>
+          <span className="text-blanco">{precioBase * numPasajeros} €</span>
         </div>
         {maleta === 'maletero' && (
           <div className="flex justify-between text-[13px] py-1 text-gris">
