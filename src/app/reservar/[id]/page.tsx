@@ -6,10 +6,13 @@ import BookingForm from './BookingForm';
 
 export default async function ReservarPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ error?: string }>;
 }) {
   const { id } = await params;
+  const { error } = await searchParams;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
@@ -69,6 +72,12 @@ export default async function ReservarPage({
             </div>
           )}
         </div>
+
+        {error === 'ya_reservado' && (
+          <div className="bg-[rgba(229,84,75,.10)] border border-[rgba(229,84,75,.35)] rounded-xl px-4 py-3 mb-4 text-[13px] text-[#E5544B]">
+            Ya tienes una reserva activa en este viaje. Puedes verla en <Link href="/mis-viajes" className="underline font-semibold">Mis viajes</Link>.
+          </div>
+        )}
 
         {trip.plazas_libres > 0 ? (
           <BookingForm trip={{
