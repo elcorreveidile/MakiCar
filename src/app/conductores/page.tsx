@@ -63,12 +63,28 @@ export default function ConductoresPage() {
           Sin comisiones por reserva. Sin intermediarios. Tu dinero, directo.
         </p>
 
-        {/* Pricing */}
+        {/* Oferta lanzamiento */}
+        <div className="bg-[rgba(255,182,39,.08)] border-2 border-ambar rounded-2xl p-5 mb-4">
+          <div className="flex justify-between items-start mb-2">
+            <p className="text-ambar text-[11px] font-bold uppercase tracking-widest">Oferta de lanzamiento</p>
+            <span className="text-[10px] font-bold text-noche bg-ambar px-2 py-0.5 rounded-full">20 primeros</span>
+          </div>
+          <p className="font-fraunces text-[32px] font-semibold text-blanco leading-none mb-1">
+            170 €<span className="text-[16px] text-gris font-normal"> pago único</span>
+          </p>
+          <p className="text-gris text-[13px] mb-3">
+            Cubre la instalación y el primer año completo de servicio.
+          </p>
+          <div className="border-t border-ambar/20 pt-3">
+            <p className="text-gris text-[12px]">A partir del segundo año: <span className="text-blanco font-semibold">25 €/mes</span> o <span className="text-blanco font-semibold">200 €/año</span></p>
+          </div>
+        </div>
+
+        {/* Pricing normal */}
         <div className="bg-carta border border-linea rounded-2xl p-5 mb-6">
-          <p className="text-gris text-xs uppercase tracking-widest mb-4">Precio</p>
+          <p className="text-gris text-xs uppercase tracking-widest mb-4">Precio habitual</p>
 
           <div className="flex gap-3 mb-4">
-            {/* Monthly */}
             <div className="flex-1 bg-[#0D1117] border border-linea rounded-xl p-4 text-center">
               <p className="text-gris text-[11px] mb-1">Alta única</p>
               <p className="font-fraunces text-[28px] font-semibold text-blanco">150<span className="text-[16px]"> €</span></p>
@@ -76,18 +92,18 @@ export default function ConductoresPage() {
             </div>
             <div className="flex-1 bg-[#0D1117] border border-linea rounded-xl p-4 text-center">
               <p className="text-gris text-[11px] mb-1">Mensual</p>
-              <p className="font-fraunces text-[28px] font-semibold text-blanco">30<span className="text-[16px]"> €</span></p>
+              <p className="font-fraunces text-[28px] font-semibold text-blanco">25<span className="text-[16px]"> €</span></p>
               <p className="text-gris text-[11px] mt-1">/ mes</p>
             </div>
           </div>
 
           {/* Annual highlight */}
-          <div className="bg-[rgba(255,182,39,.08)] border border-[rgba(255,182,39,.25)] rounded-xl p-4 flex justify-between items-center">
+          <div className="bg-[rgba(255,182,39,.06)] border border-[rgba(255,182,39,.2)] rounded-xl p-4 flex justify-between items-center">
             <div>
               <p className="text-ambar text-[13px] font-bold">Pago anual</p>
               <p className="text-gris text-[11px] mt-0.5">2 meses gratis frente al mensual</p>
             </div>
-            <p className="font-fraunces text-[22px] font-semibold text-ambar">300 €<span className="text-[12px] text-gris font-normal"> /año</span></p>
+            <p className="font-fraunces text-[22px] font-semibold text-ambar">200 €<span className="text-[12px] text-gris font-normal"> /año</span></p>
           </div>
         </div>
 
