@@ -55,8 +55,11 @@ function PuntosInput({ name, label }: { name: string; label: string }) {
 export default function TripForm() {
   const [origen,   setOrigen]   = useState<Parada>('Granada');
   const [destino,  setDestino]  = useState<Parada>('Málaga');
-  const [fechaHora, setFechaHora] = useState('');
+  const [fecha,    setFecha]    = useState('');
+  const [hora,     setHora]     = useState('08:00');
   const [abierto,  setAbierto]  = useState(false);
+
+  const fechaHora = fecha && hora ? `${fecha}T${hora}` : '';
 
   function handleOrigenChange(v: Parada) {
     setOrigen(v);
@@ -118,16 +121,30 @@ export default function TripForm() {
         </div>
       </div>
 
-      <div>
-        <label className="block text-gris text-[10px] mb-1">Fecha y hora de salida</label>
-        <input
-          type="datetime-local"
-          name="fecha_hora"
-          required
-          value={fechaHora}
-          onChange={e => setFechaHora(e.target.value)}
-          className="w-full bg-[#0D1117] border border-linea rounded-xl px-3 py-2.5 text-blanco text-sm focus:outline-none focus:border-ambar"
-        />
+      <div className="flex gap-2">
+        <div className="flex-1">
+          <label className="block text-gris text-[10px] mb-1">Fecha de salida</label>
+          <input
+            type="date"
+            name="fecha"
+            required
+            value={fecha}
+            min={new Date().toISOString().split('T')[0]}
+            onChange={e => setFecha(e.target.value)}
+            className="w-full bg-[#0D1117] border border-linea rounded-xl px-3 py-2.5 text-blanco text-sm focus:outline-none focus:border-ambar"
+          />
+        </div>
+        <div>
+          <label className="block text-gris text-[10px] mb-1">Hora</label>
+          <input
+            type="time"
+            name="hora"
+            required
+            value={hora}
+            onChange={e => setHora(e.target.value)}
+            className="w-28 bg-[#0D1117] border border-linea rounded-xl px-3 py-2.5 text-blanco text-sm focus:outline-none focus:border-ambar"
+          />
+        </div>
       </div>
 
       <div className="flex gap-3">
