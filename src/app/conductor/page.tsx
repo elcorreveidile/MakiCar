@@ -11,6 +11,7 @@ import {
 import TripForm from './TripForm';
 import TripCard from './TripCard';
 import MakiCarLogo from '@/components/MakiCarLogo';
+import InviteLink from './InviteLink';
 
 function formatFecha(iso: string | null) {
   if (!iso) return '—';
@@ -152,6 +153,11 @@ export default async function ConductorPage({
             No se puede eliminar un viaje con reservas pendientes o confirmadas.
           </div>
         )}
+
+        {/* ── Enlace de invitación ──────────────────────── */}
+        <Seccion titulo="Comparte con tus pasajeros">
+          <InviteLink url={`${process.env.NEXT_PUBLIC_SITE_URL ?? 'https://makicar.app'}/unirse?c=${conductorId}`} />
+        </Seccion>
 
         {/* ── Mis viajes ────────────────────────────────── */}
         <Seccion titulo="Mis viajes">
