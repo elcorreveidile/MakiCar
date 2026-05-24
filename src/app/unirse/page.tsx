@@ -17,7 +17,7 @@ export default async function UnirsePage({
   const admin = createAdminClient();
   const { data: conductor } = await admin
     .from('conductores')
-    .select('id, nombre, activo')
+    .select('id, nombre_servicio, activo')
     .eq('id', conductorId)
     .eq('activo', true)
     .single();
@@ -55,7 +55,7 @@ export default async function UnirsePage({
           <>
             <div className="bg-carta border border-linea rounded-xl p-4 mb-6 text-center">
               <p className="text-gris text-xs uppercase tracking-wider mb-1">Tu conductor</p>
-              <p className="font-fraunces text-2xl text-blanco">{conductor.nombre}</p>
+              <p className="font-fraunces text-2xl text-blanco">{conductor.nombre_servicio}</p>
               <p className="text-gris text-xs mt-1">te invita a reservar plaza en MakiCar</p>
             </div>
 
