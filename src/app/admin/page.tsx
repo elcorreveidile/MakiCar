@@ -5,6 +5,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { redirect } from 'next/navigation';
 import MakiCarLogo from '@/components/MakiCarLogo';
 import { crearConductor, toggleConductor, cerrarSesionAdmin } from './actions';
+import EliminarConductorButton from './EliminarConductorButton';
 
 function Seccion({ titulo, children }: { titulo: string; children: React.ReactNode }) {
   return (
@@ -15,7 +16,12 @@ function Seccion({ titulo, children }: { titulo: string; children: React.ReactNo
   );
 }
 
-export default async function AdminPage() {
+export default async function AdminPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const params = await searchParams;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
@@ -77,6 +83,12 @@ export default async function AdminPage() {
 
       <div className="flex-1 px-5 py-5 overflow-y-auto pb-8">
 
+        {params.error === 'conductor_con_datos' && (
+          <div className="bg-[rgba(229,84,75,.1)] border border-[rgba(229,84,75,.2)] rounded-xl px-4 py-3 mb-4 text-[13px] text-[#E5544B]">
+            No se puede eliminar: este conductor tiene viajes o reservas en el sistema. Desactívalo en su lugar.
+          </div>
+        )}
+
         {/* ── Lista de conductores ───────────────────────── */}
         <Seccion titulo={`Conductores (${conductores?.length ?? 0})`}>
           {!conductores?.length
@@ -98,20 +110,26 @@ export default async function AdminPage() {
                     <span className="text-gris text-[11px]">{tripsCount[c.id] ?? 0} viajes</span>
                     <span className="text-gris text-[11px]">{bookingsCount[c.id] ?? 0} reservas</span>
                   </div>
-                  <form action={toggleConductor}>
-                    <input type="hidden" name="conductor_id" value={c.id} />
-                    <input type="hidden" name="activo" value={String(c.activo)} />
-                    <button
-                      type="submit"
-                      className={`text-[12px] border rounded-lg px-3 py-1.5 font-semibold active:scale-[.98] transition-transform ${
-                        c.activo
-                          ? 'text-gris border-linea'
-                          : 'text-ambar border-ambar/40'
-                      }`}
-                    >
-                      {c.activo ? 'Desactivar' : 'Activar'}
-                    </button>
-                  </form>
+                  <div className="flex gap-2">
+                    <form action={toggleConductor}>
+                      <input type="hidden" name="conductor_id" value={c.id} />
+                      <input type="hidden" name="activo" value={String(c.activo)} />
+                      <button
+                        type="submit"
+                        className={`text-[12px] border rounded-lg px-3 py-1.5 font-semibold active:scale-[.98] transition-transform ${
+                          c.activo
+                            ? 'text-gris border-linea'
+                            : 'text-ambar border-ambar/40'
+                        }`}
+                      >
+                        {c.activo ? 'Desactivar' : 'Activar'}
+                      </button>
+                    </form>
+                    <EliminarConductorButton
+                      conductorId={c.id}
+                      nombre={perfil?.nombre ?? c.nombre_servicio}
+                    />
+                  </div>
                 </div>
               );
             })
