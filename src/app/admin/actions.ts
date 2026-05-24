@@ -90,8 +90,9 @@ export async function crearConductor(formData: FormData) {
       if (priceId) {
         const customer = await stripe.customers.create({
           email,
-          name: nombre,
-          metadata: { makicar_profile_id: userId },
+          name:               nombre,
+          preferred_locales:  ['es'],
+          metadata:           { makicar_profile_id: userId },
         });
 
         let subscriptionId: string;
