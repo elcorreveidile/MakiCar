@@ -110,12 +110,12 @@ export default function ConductoresPage() {
           <p className="text-gris text-[13px] mb-4">
             Escríbenos y te ponemos en marcha en menos de 24 h.
           </p>
-          <a
-            href="mailto:hola@makicar.app?subject=Quiero%20ser%20conductor%20en%20MakiCar"
-            className="block w-full bg-ambar text-noche font-bold rounded-xl py-3.5 text-[14px] active:scale-[.98] transition-transform"
+          <Link
+            href="/conductores/contacto"
+            className="block w-full bg-ambar text-noche font-bold rounded-xl py-3.5 text-[14px] text-center active:scale-[.98] transition-transform"
           >
             Contactar ahora
-          </a>
+          </Link>
         </div>
 
         <Link href="/login" className="block text-center text-gris text-xs underline underline-offset-2 pb-8">
