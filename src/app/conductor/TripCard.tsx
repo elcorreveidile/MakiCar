@@ -157,7 +157,18 @@ export default function TripCard({ trip }: { trip: Trip }) {
         >
           Editar
         </button>
-        <form action={eliminarViaje}>
+        <form
+          action={eliminarViaje}
+          onSubmit={(e) => {
+            const msUntil = new Date(trip.fecha_hora).getTime() - Date.now();
+            const menosDe24h = msUntil > 0 && msUntil < 24 * 60 * 60 * 1000;
+            if (menosDe24h && !window.confirm(
+              '⚠️ Este viaje sale en menos de 24 horas.\n\nLos pasajeros con reserva confirmada se verán afectados. ¿Seguro que quieres eliminarlo?'
+            )) {
+              e.preventDefault();
+            }
+          }}
+        >
           <input type="hidden" name="trip_id" value={trip.id} />
           <button
             type="submit"
