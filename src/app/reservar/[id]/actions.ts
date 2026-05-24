@@ -25,6 +25,7 @@ export async function reservarEnViaje(formData: FormData) {
   const formaPago = ((formData.get('forma_pago') as string) || 'efectivo') as FormaPago;
   const dirRecogida = (formData.get('direccion_recogida') as string)?.trim() || null;
   const dirDestino  = (formData.get('direccion_destino')  as string)?.trim() || null;
+  const notas       = (formData.get('notas')              as string)?.trim() || null;
 
   // Calcular precio para el tramo real del pasajero
   const destinoPasajero = ((formData.get('destino_pasajero') as string) || trip.destino_cabecera) as Parada;
@@ -60,6 +61,7 @@ export async function reservarEnViaje(formData: FormData) {
     fecha_hora_solicitada: trip.fecha_hora,
     direccion_recogida:   dirRecogida,
     direccion_destino:    dirDestino,
+    notas,
     es_noche:             esNoche,
     precio_base:          precioBase,
     maleta,

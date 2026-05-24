@@ -134,6 +134,16 @@ export default function BookingForm({ trip }: { trip: Trip }) {
         </select>
       </div>
 
+      <div>
+        <label className="block text-gris text-xs mb-1.5">Nota para el conductor (opcional)</label>
+        <textarea
+          name="notas"
+          rows={3}
+          placeholder="Ej: Llevaré una silla de bebé, necesito parar en Motril..."
+          className="w-full bg-[#0D1117] border border-linea rounded-xl px-3.5 py-3 text-blanco text-sm placeholder-gris focus:outline-none focus:border-ambar resize-none"
+        />
+      </div>
+
       <div className="bg-[rgba(43,182,164,.08)] border border-[rgba(43,182,164,.25)] text-[#9fe7dc] text-xs rounded-xl px-3.5 py-3 leading-relaxed">
         🚭 Prohibido fumar &nbsp;·&nbsp; 🐾 Se admiten mascotas (avisando antes)
       </div>
