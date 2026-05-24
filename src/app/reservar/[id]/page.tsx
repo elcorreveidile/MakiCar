@@ -43,16 +43,20 @@ export default async function ReservarPage({
             <span className="font-semibold text-[16px]">
               {trip.origen_cabecera} → {trip.destino_cabecera}
             </span>
-            <span className="font-fraunces text-ambar text-[22px] font-semibold">{trip.precio} €</span>
           </div>
           <p className="text-gris text-[12px] capitalize">{fechaLarga}</p>
           <p className="text-gris text-[11px] mt-1">
-            {trip.plazas_libres} {trip.plazas_libres === 1 ? 'plaza libre' : 'plazas libres'}
+            {trip.plazas_libres} {trip.plazas_libres === 1 ? 'plaza libre' : 'plazas libres'} · precio según parada de bajada
           </p>
         </div>
 
         {trip.plazas_libres > 0 ? (
-          <BookingForm trip={{ id: trip.id, precio: trip.precio }} />
+          <BookingForm trip={{
+            id: trip.id,
+            origen: trip.origen_cabecera,
+            destino: trip.destino_cabecera,
+            fechaHora: trip.fecha_hora,
+          }} />
         ) : (
           <div className="text-center py-10">
             <p className="text-gris mb-4">Este viaje ya no tiene plazas disponibles.</p>

@@ -1,12 +1,9 @@
 'use server';
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
+import { calcularPrecio } from '@/lib/tarifas';
+import type { Parada } from '@/lib/tarifas';
 import type { TipoMaleta, TipoMascota, FormaPago } from '@/lib/supabase/types';
-
-function esHoraNoche(fecha: Date): boolean {
-  const m = fecha.getHours() * 60 + fecha.getMinutes();
-  return m >= 21 * 60 || m <= 6 * 60;
-}
 
 export async function reservarEnViaje(formData: FormData) {
   const supabase = await createClient();
@@ -29,7 +26,25 @@ export async function reservarEnViaje(formData: FormData) {
   const dirRecogida = (formData.get('direccion_recogida') as string)?.trim() || null;
   const dirDestino  = (formData.get('direccion_destino')  as string)?.trim() || null;
 
-  const precioBase = trip.precio;
+  // Calcular precio para el tramo real del pasajero
+  const destinoPasajero = ((formData.get('destino_pasajero') as string) || trip.destino_cabecera) as Parada;
+  let precioBase: number;
+  let esNoche: boolean;
+  try {
+    const r = calcularPrecio({
+      origen:    trip.origen_cabecera as Parada,
+      destino:   destinoPasajero,
+      fechaHora: new Date(trip.fecha_hora),
+      maleta:    'no',
+      mascota:   'no',
+    });
+    precioBase = r.precioBase;
+    esNoche    = r.esNoche;
+  } catch {
+    precioBase = trip.precio;
+    esNoche    = false;
+  }
+
   let suplementos = 0;
   if (maleta  === 'maletero') suplementos += 5;
   else if (maleta  === 'asiento') suplementos += precioBase;
@@ -41,11 +56,11 @@ export async function reservarEnViaje(formData: FormData) {
     conductor_id:         trip.conductor_id,
     cliente_id:           user.id,
     origen:               trip.origen_cabecera,
-    destino:              trip.destino_cabecera,
+    destino:              destinoPasajero,
     fecha_hora_solicitada: trip.fecha_hora,
     direccion_recogida:   dirRecogida,
     direccion_destino:    dirDestino,
-    es_noche:             esHoraNoche(new Date(trip.fecha_hora)),
+    es_noche:             esNoche,
     precio_base:          precioBase,
     maleta,
     mascota,
