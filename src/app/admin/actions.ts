@@ -4,6 +4,9 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { notificarBajaConductor, notificarBajaConductorEspecial } from '@/lib/email';
+import { getMakicarStripe, PRICE_LAUNCH, PRICE_STANDARD } from '@/lib/stripe/makicar';
+
+const PLAZAS_LANZAMIENTO = 10;
 
 async function verificarSuperadmin() {
   const supabase = await createClient();
@@ -70,6 +73,44 @@ export async function crearConductor(formData: FormData) {
       activo:          true,
     });
     if (insertError) throw new Error(`Error insertando conductor: ${insertError.message}`);
+  }
+
+  // ── Facturación Stripe del operador ────────────────────
+  const stripe = getMakicarStripe();
+  if (stripe) {
+    try {
+      // Contar conductores activos para elegir tarifa lanzamiento o estándar
+      const { count } = await admin
+        .from('conductores')
+        .select('*', { count: 'exact', head: true })
+        .eq('activo', true);
+      const priceId = (count ?? 0) <= PLAZAS_LANZAMIENTO ? PRICE_LAUNCH : PRICE_STANDARD;
+
+      if (priceId) {
+        const customer = await stripe.customers.create({
+          email,
+          name: nombre,
+          metadata: { makicar_profile_id: userId },
+        });
+
+        const subscription = await stripe.subscriptions.create({
+          customer:           customer.id,
+          items:              [{ price: priceId }],
+          collection_method:  'send_invoice',
+          days_until_due:     30,
+          metadata:           { makicar_profile_id: userId },
+        });
+
+        await admin.from('conductores').update({
+          makicar_stripe_customer_id:         customer.id,
+          makicar_stripe_subscription_id:     subscription.id,
+          makicar_stripe_subscription_status: subscription.status,
+        }).eq('profile_id', userId);
+      }
+    } catch (err) {
+      // No bloqueamos la creación del conductor si Stripe falla
+      console.error('[MakiCar Stripe] Error creando suscripción:', err);
+    }
   }
 
   redirect('/admin');
@@ -215,12 +256,22 @@ export async function eliminarConductor(formData: FormData) {
     }
   }
 
-  // Obtener profile_id antes de borrar
+  // Obtener datos antes de borrar (profile_id + Stripe IDs)
   const { data: conductor } = await admin
     .from('conductores')
-    .select('profile_id')
+    .select('profile_id, makicar_stripe_customer_id, makicar_stripe_subscription_id')
     .eq('id', conductorId)
     .single();
+
+  // Cancelar suscripción Stripe del operador si existe
+  const stripe = getMakicarStripe();
+  if (stripe && conductor?.makicar_stripe_subscription_id) {
+    try {
+      await stripe.subscriptions.cancel(conductor.makicar_stripe_subscription_id);
+    } catch (err) {
+      console.error('[MakiCar Stripe] Error cancelando suscripción:', err);
+    }
+  }
 
   // Eliminar filas que referencian al conductor (FKs sin CASCADE)
   await admin.from('bookings').delete().eq('conductor_id', conductorId);

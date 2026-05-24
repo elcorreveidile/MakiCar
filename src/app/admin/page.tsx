@@ -7,6 +7,24 @@ import MakiCarLogo from '@/components/MakiCarLogo';
 import { crearConductor, toggleConductor, cerrarSesionAdmin } from './actions';
 import EliminarConductorButton from './EliminarConductorButton';
 
+const BILLING_LABELS: Record<string, { label: string; color: string }> = {
+  active:           { label: 'Al corriente',   color: 'text-ruta bg-[rgba(43,182,164,.14)]' },
+  past_due:         { label: 'Pago atrasado',  color: 'text-[#FFB627] bg-[rgba(255,182,39,.14)]' },
+  unpaid:           { label: 'Sin pagar',      color: 'text-[#E5544B] bg-[rgba(229,84,75,.14)]' },
+  canceled:         { label: 'Cancelada',      color: 'text-gris bg-[rgba(138,147,166,.14)]' },
+  trialing:         { label: 'En prueba',      color: 'text-violeta bg-[rgba(155,140,255,.14)]' },
+  sin_suscripcion:  { label: 'Sin facturar',   color: 'text-gris bg-[rgba(138,147,166,.14)]' },
+};
+
+function BillingBadge({ status }: { status: string }) {
+  const { label, color } = BILLING_LABELS[status] ?? BILLING_LABELS['sin_suscripcion'];
+  return (
+    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${color}`}>
+      {label}
+    </span>
+  );
+}
+
 function Seccion({ titulo, children }: { titulo: string; children: React.ReactNode }) {
   return (
     <section className="mb-8">
@@ -88,10 +106,13 @@ export default async function AdminPage() {
                 <div key={c.id} className="bg-carta border border-linea rounded-xl p-4 mb-3">
                   <div className="flex justify-between items-start mb-1">
                     <span className="font-semibold text-[14px]">{perfil?.nombre ?? c.nombre_servicio}</span>
-                    {c.activo
-                      ? <span className="text-ruta text-[10px] font-bold bg-[rgba(43,182,164,.14)] px-2 py-0.5 rounded-full">ACTIVO</span>
-                      : <span className="text-gris text-[10px] font-bold bg-[rgba(138,147,166,.14)] px-2 py-0.5 rounded-full">INACTIVO</span>
-                    }
+                    <div className="flex flex-col items-end gap-1">
+                      {c.activo
+                        ? <span className="text-ruta text-[10px] font-bold bg-[rgba(43,182,164,.14)] px-2 py-0.5 rounded-full">ACTIVO</span>
+                        : <span className="text-gris text-[10px] font-bold bg-[rgba(138,147,166,.14)] px-2 py-0.5 rounded-full">INACTIVO</span>
+                      }
+                      <BillingBadge status={c.makicar_stripe_subscription_status ?? 'sin_suscripcion'} />
+                    </div>
                   </div>
                   <p className="text-gris text-[12px]">{c.email}</p>
                   {perfil?.telefono && <p className="text-gris text-[12px]">{perfil.telefono}</p>}
