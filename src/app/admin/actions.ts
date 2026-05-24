@@ -198,7 +198,7 @@ export async function eliminarConductor(formData: FormData) {
     await admin.auth.admin.deleteUser(conductor.profile_id);
   }
 
-  revalidatePath('/admin');
+  redirect('/admin');
 }
 
 export async function cerrarSesionAdmin() {
