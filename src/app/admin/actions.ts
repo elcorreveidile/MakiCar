@@ -158,7 +158,7 @@ export async function crearConductor(formData: FormData) {
     }
   }
 
-  redirect('/admin');
+  revalidatePath('/admin');
 }
 
 export async function toggleConductor(formData: FormData) {
