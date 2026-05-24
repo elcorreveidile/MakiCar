@@ -6,6 +6,7 @@ PWA de reservas de transporte de pasajeros puerta a puerta para un conductor y s
 
 - **Cliente**: consulta tramos, calcula precio en vivo (día/noche, suplementos de maleta y mascota), reserva plaza en la ruta troncal o pide un servicio especial, y elige pago en efectivo o tarjeta.
 - **Conductor**: aprueba todas las solicitudes, gestiona la hoja de ruta del día con puntos de recogida y caja prevista, fija precio de servicios especiales y administra su cartera de clientes.
+- **Superadmin**: da de alta conductores y supervisa su actividad desde `/admin`.
 
 ## Stack
 
@@ -15,9 +16,70 @@ PWA de reservas de transporte de pasajeros puerta a puerta para un conductor y s
 - **Stripe** (pre-autorización de plaza)
 - PWA instalable, desplegada en **Vercel**
 
-## Modelo de negocio
+## Puesta en marcha local
 
-Herramienta licenciada (SaaS): cada conductor opera su propio negocio y cobra a sus clientes; el operador de la app cobra una cuota por su uso. El dinero del pasaje no pasa por el operador. La arquitectura está preparada para multi-conductor desde el inicio, aunque la v1 funciona con un solo conductor.
+### 1. Clonar el repositorio
+
+```bash
+git clone https://github.com/elcorreveidile/makicar.git
+cd makicar
+```
+
+### 2. Instalar dependencias
+
+```bash
+npm install
+```
+
+### 3. Variables de entorno
+
+Crea el archivo `.env.local` en la raíz del proyecto (nunca se sube al repo):
+
+```bash
+cat > .env.local << 'EOF'
+NEXT_PUBLIC_SUPABASE_URL=https://wchzfowahoksisgygudz.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_5g9utJNaswn-oc2-TXpR4w_Ale2iKba
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+SUPABASE_SERVICE_ROLE_KEY=PEGAR_AQUI
+EOF
+```
+
+`SUPABASE_SERVICE_ROLE_KEY` → Supabase Dashboard → Settings → API → **Service role key**.
+
+### 4. Arrancar
+
+```bash
+npm run dev
+```
+
+Abre `http://localhost:3000`.
+
+---
+
+## Variables en Vercel (producción)
+
+Añade en **Vercel → Settings → Environment Variables**:
+
+| Variable | Dónde obtenerla |
+|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase → Settings → API |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase → Settings → API |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase → Settings → API → Service role key |
+| `NEXT_PUBLIC_SITE_URL` | Tu dominio de Vercel |
+
+---
+
+## Roles de usuario
+
+| Rol | Acceso |
+|---|---|
+| `cliente` | Panel de pasajero (`/`) |
+| `conductor` | Panel de conductor (`/conductor`) |
+| `superadmin` | Panel de administración (`/admin`) |
+
+El rol se asigna en la columna `rol` de la tabla `profiles` de Supabase.
+
+---
 
 ## Documentación del proyecto
 
