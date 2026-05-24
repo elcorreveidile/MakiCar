@@ -2,6 +2,12 @@
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import {
+  notificarReservaConfirmada,
+  notificarReservaRechazada,
+  notificarEspecialConfirmada,
+  notificarEspecialRechazada,
+} from '@/lib/email';
 
 async function getConductorSupabase() {
   const supabase = await createClient();
@@ -12,17 +18,41 @@ async function getConductorSupabase() {
 
 export async function confirmarReserva(formData: FormData) {
   const supabase = await getConductorSupabase();
+  const bookingId = formData.get('booking_id') as string;
+
+  const { data: booking } = await supabase
+    .from('bookings')
+    .select('cliente_id, origen, destino, fecha_hora_solicitada, precio_total, forma_pago')
+    .eq('id', bookingId)
+    .single();
+
   await supabase.from('bookings')
     .update({ estado: 'confirmada' })
-    .eq('id', formData.get('booking_id') as string);
+    .eq('id', bookingId);
+
+  if (booking) {
+    await notificarReservaConfirmada({
+      pasajeroId: booking.cliente_id,
+      origen:     booking.origen,
+      destino:    booking.destino,
+      fechaHora:  booking.fecha_hora_solicitada ?? '',
+      precioTotal: booking.precio_total,
+      formaPago:  booking.forma_pago,
+    });
+  }
+
   revalidatePath('/conductor');
 }
 
 export async function rechazarReserva(formData: FormData) {
   const supabase = await getConductorSupabase();
   const bookingId = formData.get('booking_id') as string;
+
   const { data: booking } = await supabase
-    .from('bookings').select('trip_id').eq('id', bookingId).single();
+    .from('bookings')
+    .select('trip_id, cliente_id, origen, destino, fecha_hora_solicitada')
+    .eq('id', bookingId)
+    .single();
 
   await supabase.from('bookings')
     .update({ estado: 'rechazada' })
@@ -38,6 +68,16 @@ export async function rechazarReserva(formData: FormData) {
         .eq('id', booking.trip_id);
     }
   }
+
+  if (booking) {
+    await notificarReservaRechazada({
+      pasajeroId: booking.cliente_id,
+      origen:     booking.origen,
+      destino:    booking.destino,
+      fechaHora:  booking.fecha_hora_solicitada ?? '',
+    });
+  }
+
   revalidatePath('/conductor');
 }
 
@@ -51,21 +91,58 @@ export async function completarReserva(formData: FormData) {
 
 export async function confirmarEspecial(formData: FormData) {
   const supabase = await getConductorSupabase();
-  const precio = parseFloat(formData.get('precio') as string);
+  const srId    = formData.get('sr_id') as string;
+  const precio  = parseFloat(formData.get('precio') as string);
   const formaPago = formData.get('forma_pago') as 'efectivo' | 'tarjeta';
+
+  const { data: sr } = await supabase
+    .from('special_requests')
+    .select('cliente_id, origen_texto, destino_texto, fecha_hora')
+    .eq('id', srId)
+    .single();
+
   await supabase.from('special_requests').update({
     precio_propuesto: precio,
     forma_pago:       formaPago,
     estado:           'confirmada',
-  }).eq('id', formData.get('sr_id') as string);
+  }).eq('id', srId);
+
+  if (sr) {
+    await notificarEspecialConfirmada({
+      pasajeroId:     sr.cliente_id,
+      origenTexto:    sr.origen_texto,
+      destinoTexto:   sr.destino_texto,
+      fechaHora:      sr.fecha_hora,
+      precioPropuesto: precio,
+      formaPago,
+    });
+  }
+
   revalidatePath('/conductor');
 }
 
 export async function rechazarEspecial(formData: FormData) {
   const supabase = await getConductorSupabase();
+  const srId = formData.get('sr_id') as string;
+
+  const { data: sr } = await supabase
+    .from('special_requests')
+    .select('cliente_id, origen_texto, destino_texto')
+    .eq('id', srId)
+    .single();
+
   await supabase.from('special_requests')
     .update({ estado: 'rechazada' })
-    .eq('id', formData.get('sr_id') as string);
+    .eq('id', srId);
+
+  if (sr) {
+    await notificarEspecialRechazada({
+      pasajeroId:   sr.cliente_id,
+      origenTexto:  sr.origen_texto,
+      destinoTexto: sr.destino_texto,
+    });
+  }
+
   revalidatePath('/conductor');
 }
 

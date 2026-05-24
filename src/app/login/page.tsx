@@ -78,6 +78,9 @@ export default async function LoginPage({
                   Cómo funciona MakiCar
                 </a>
               </p>
+              <a href="/legal" className="text-gris text-[11px] underline underline-offset-2 opacity-60 mt-1">
+                Aviso legal y privacidad
+              </a>
             </div>
           </form>
         )}

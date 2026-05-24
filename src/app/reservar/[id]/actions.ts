@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { calcularPrecio } from '@/lib/tarifas';
 import type { Parada } from '@/lib/tarifas';
 import type { TipoMaleta, TipoMascota, FormaPago } from '@/lib/supabase/types';
+import { notificarNuevaReserva } from '@/lib/email';
 
 export async function reservarEnViaje(formData: FormData) {
   const supabase = await createClient();
@@ -80,7 +81,7 @@ export async function reservarEnViaje(formData: FormData) {
   // Vincular pasajero a este conductor si aún no tiene uno asignado
   const { data: perfil } = await supabase
     .from('profiles')
-    .select('conductor_id')
+    .select('conductor_id, nombre')
     .eq('id', user.id)
     .single();
   if (!perfil?.conductor_id) {
@@ -89,6 +90,19 @@ export async function reservarEnViaje(formData: FormData) {
       .update({ conductor_id: trip.conductor_id })
       .eq('id', user.id);
   }
+
+  // Notificar al conductor (fire & forget — el fallo de email no bloquea)
+  await notificarNuevaReserva({
+    conductorId:    trip.conductor_id,
+    pasajeroNombre: perfil?.nombre ?? 'Pasajero',
+    origen:         trip.origen_cabecera,
+    destino:        destinoPasajero,
+    fechaHora:      trip.fecha_hora,
+    precioTotal:    precioBase + suplementos,
+    maleta,
+    mascota,
+    notas,
+  });
 
   redirect('/confirmacion');
 }
