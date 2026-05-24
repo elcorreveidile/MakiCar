@@ -4,7 +4,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { notificarBajaConductor, notificarBajaConductorEspecial } from '@/lib/email';
-import { getMakicarStripe, PRICE_LAUNCH, PRICE_STANDARD } from '@/lib/stripe/makicar';
+import { getMakicarStripe, PRICE_LAUNCH, PRICE_STANDARD, PRICE_SETUP } from '@/lib/stripe/makicar';
 
 const PLAZAS_LANZAMIENTO = 10;
 
@@ -84,7 +84,8 @@ export async function crearConductor(formData: FormData) {
         .from('conductores')
         .select('*', { count: 'exact', head: true })
         .eq('activo', true);
-      const priceId = (count ?? 0) <= PLAZAS_LANZAMIENTO ? PRICE_LAUNCH : PRICE_STANDARD;
+      const esLanzamiento = (count ?? 0) <= PLAZAS_LANZAMIENTO;
+      const priceId = esLanzamiento ? PRICE_LAUNCH : PRICE_STANDARD;
 
       if (priceId) {
         const customer = await stripe.customers.create({
@@ -93,13 +94,20 @@ export async function crearConductor(formData: FormData) {
           metadata: { makicar_profile_id: userId },
         });
 
-        const subscription = await stripe.subscriptions.create({
+        const subscriptionParams: Parameters<typeof stripe.subscriptions.create>[0] = {
           customer:           customer.id,
           items:              [{ price: priceId }],
           collection_method:  'send_invoice',
           days_until_due:     30,
           metadata:           { makicar_profile_id: userId },
-        });
+        };
+
+        // Conductores estándar: añadir alta única de 150 € en la primera factura
+        if (!esLanzamiento && PRICE_SETUP) {
+          subscriptionParams.add_invoice_items = [{ price: PRICE_SETUP }];
+        }
+
+        const subscription = await stripe.subscriptions.create(subscriptionParams);
 
         await admin.from('conductores').update({
           makicar_stripe_customer_id:         customer.id,
