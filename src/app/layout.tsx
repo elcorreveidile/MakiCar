@@ -17,6 +17,16 @@ const sora = Sora({
 export const metadata: Metadata = {
   title: 'MakiCar',
   description: 'Reserva tu plaza · Granada · Málaga · Marbella · Estepona · Algeciras',
+  manifest: '/manifest.webmanifest',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'MakiCar',
+  },
+  other: {
+    'mobile-web-app-capable': 'yes',
+    'theme-color': '#FFB627',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
