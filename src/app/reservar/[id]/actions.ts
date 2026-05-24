@@ -26,6 +26,17 @@ export async function reservarEnViaje(formData: FormData) {
 
   if (!trip || trip.plazas_libres < numPasajeros) redirect('/');
 
+  // Comprobar si el usuario ya tiene una reserva activa en este viaje
+  const { data: reservaExistente } = await supabase
+    .from('bookings')
+    .select('id')
+    .eq('trip_id', tripId)
+    .eq('cliente_id', user.id)
+    .in('estado', ['pendiente', 'confirmada'])
+    .maybeSingle();
+
+  if (reservaExistente) redirect(`/reservar/${tripId}?error=ya_reservado`);
+
   const maleta    = ((formData.get('maleta')     as string) || 'no')       as TipoMaleta;
   const mascota   = ((formData.get('mascota')    as string) || 'no')       as TipoMascota;
   const formaPago = ((formData.get('forma_pago') as string) || 'efectivo') as FormaPago;
