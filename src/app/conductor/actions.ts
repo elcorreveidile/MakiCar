@@ -50,7 +50,7 @@ export async function rechazarReserva(formData: FormData) {
 
   const { data: booking } = await supabase
     .from('bookings')
-    .select('trip_id, cliente_id, origen, destino, fecha_hora_solicitada')
+    .select('trip_id, cliente_id, origen, destino, fecha_hora_solicitada, num_pasajeros')
     .eq('id', bookingId)
     .single();
 
@@ -58,13 +58,15 @@ export async function rechazarReserva(formData: FormData) {
     .update({ estado: 'rechazada' })
     .eq('id', bookingId);
 
-  // Devolver plaza al viaje si aplica
+  // Devolver plazas al viaje (el conductor sí puede actualizar sus propios trips)
   if (booking?.trip_id) {
     const { data: trip } = await supabase
       .from('trips').select('plazas_libres, plazas_totales').eq('id', booking.trip_id).single();
-    if (trip && trip.plazas_libres < trip.plazas_totales) {
+    if (trip) {
+      const devolver = booking.num_pasajeros ?? 1;
+      const nuevasLibres = Math.min(trip.plazas_totales, trip.plazas_libres + devolver);
       await supabase.from('trips')
-        .update({ plazas_libres: trip.plazas_libres + 1 })
+        .update({ plazas_libres: nuevasLibres })
         .eq('id', booking.trip_id);
     }
   }
