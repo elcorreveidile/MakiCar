@@ -44,31 +44,32 @@ export async function crearConductor(formData: FormData) {
   }
 
   // Upsert del perfil (el trigger puede haberlo creado ya, o puede ser uno existente)
-  await admin.from('profiles').upsert({
+  const { error: profileError } = await admin.from('profiles').upsert({
     id:       userId,
     rol:      'conductor',
     nombre,
     telefono: tel,
   }, { onConflict: 'id' });
+  if (profileError) throw new Error(`Error actualizando perfil: ${profileError.message}`);
 
   // Insertar o reactivar en conductores
   const { data: conductorExistente } = await admin
-    .from('conductores').select('id').eq('profile_id', userId).single();
+    .from('conductores').select('id').eq('profile_id', userId).maybeSingle();
 
   if (conductorExistente) {
-    await admin.from('conductores').update({
+    const { error: updateError } = await admin.from('conductores').update({
       nombre_servicio: nombre,
-      email,
-      activo: true,
+      activo:          true,
     }).eq('profile_id', userId);
+    if (updateError) throw new Error(`Error actualizando conductor: ${updateError.message}`);
   } else {
-    await admin.from('conductores').insert({
+    const { error: insertError } = await admin.from('conductores').insert({
       profile_id:      userId,
       nombre_servicio: nombre,
-      email,
       plazas_vehiculo: 4,
       activo:          true,
     });
+    if (insertError) throw new Error(`Error insertando conductor: ${insertError.message}`);
   }
 
   redirect('/admin');
