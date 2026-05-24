@@ -18,14 +18,18 @@ export default async function Home() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('nombre, rol, conductor_id')
-    .eq('id', user.id)
-    .single();
+  const [
+    { data: profile },
+    { data: isConductor },
+    { data: isAdmin },
+  ] = await Promise.all([
+    supabase.from('profiles').select('nombre, rol, conductor_id').eq('id', user.id).single(),
+    supabase.rpc('es_conductor_activo'),
+    supabase.rpc('es_superadmin'),
+  ]);
 
-  if (profile?.rol === 'conductor')   redirect('/conductor');
-  if (profile?.rol === 'superadmin')  redirect('/admin');
+  if (isConductor) redirect('/conductor');
+  if (isAdmin)     redirect('/admin');
 
   let trips = null;
   if (profile?.conductor_id) {
