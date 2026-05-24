@@ -161,6 +161,9 @@ export async function crearViaje(formData: FormData) {
 
   const plazas = parseInt(formData.get('plazas') as string, 10);
   const precio = parseFloat(formData.get('precio') as string);
+  const fecha  = formData.get('fecha') as string;
+  const hora   = formData.get('hora') as string;
+  const fechaHora = `${fecha}T${hora}`;
   const puntosRecogida = formData.getAll('puntos_recogida').map(String).filter(Boolean);
   const puntosLlegada  = formData.getAll('puntos_llegada').map(String).filter(Boolean);
 
@@ -168,7 +171,7 @@ export async function crearViaje(formData: FormData) {
     conductor_id:      conductorId,
     origen_cabecera:   formData.get('origen') as string,
     destino_cabecera:  formData.get('destino') as string,
-    fecha_hora:        formData.get('fecha_hora') as string,
+    fecha_hora:        fechaHora,
     plazas_totales:    plazas,
     plazas_libres:     plazas,
     precio,
