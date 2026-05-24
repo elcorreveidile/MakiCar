@@ -30,8 +30,8 @@ export default function LegalPage() {
         <Section title="Titular del servicio">
           <p>
             El servicio MakiCar es operado por <strong className="text-blanco">espanias.com</strong>,
-            con domicilio en <strong className="text-blanco">M Magdalena, 5. Estepona (Málaga)</strong> y dirección de contacto{' '}
-            <a href="mailto:informa@blablaele.com" className="text-ambar">informa@blablaele.com</a>.
+            con domicilio en <strong className="text-blanco">M Magdalena, 5. Estepona (Málaga)</strong> y dirección de contacto a través del{' '}
+            <Link href="/conductores/contacto" className="text-ambar underline underline-offset-2">formulario de contacto</Link>.
           </p>
         </Section>
 
@@ -58,7 +58,7 @@ export default function LegalPage() {
         <Section title="Responsable del tratamiento">
           <p>
             <strong className="text-blanco">espanias.com</strong> · M Magdalena, 5. Estepona (Málaga) —{' '}
-            <a href="mailto:informa@blablaele.com" className="text-ambar">informa@blablaele.com</a>
+            <Link href="/conductores/contacto" className="text-ambar underline underline-offset-2">formulario de contacto</Link>
           </p>
         </Section>
 
@@ -98,8 +98,8 @@ export default function LegalPage() {
         <Section title="Tus derechos">
           <p>
             Puedes ejercer tus derechos de acceso, rectificación, supresión, oposición, limitación y
-            portabilidad escribiéndonos a{' '}
-            <a href="mailto:informa@blablaele.com" className="text-ambar">informa@blablaele.com</a>.
+            portabilidad a través de nuestro{' '}
+            <Link href="/conductores/contacto" className="text-ambar underline underline-offset-2">formulario de contacto</Link>.
             También tienes derecho a presentar una reclamación ante la{' '}
             <strong className="text-blanco">Agencia Española de Protección de Datos (AEPD)</strong>.
           </p>
@@ -115,9 +115,9 @@ export default function LegalPage() {
         <div className="border-t border-linea my-8" />
         <p className="text-gris text-[12px] text-center mb-4">
           ¿Tienes preguntas?{' '}
-          <a href="mailto:informa@blablaele.com" className="text-ambar underline underline-offset-2">
-            informa@blablaele.com
-          </a>
+          <Link href="/conductores/contacto" className="text-ambar underline underline-offset-2">
+            Escríbenos aquí
+          </Link>
         </p>
       </div>
 
