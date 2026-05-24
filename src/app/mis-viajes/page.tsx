@@ -1,7 +1,8 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { cancelarReserva, cancelarEspecial } from './actions';
+import { cancelarEspecial } from './actions';
+import CancelarReservaButton from './CancelarReservaButton';
 import BottomTabs from '@/components/BottomTabs';
 import MakiCarLogo from '@/components/MakiCarLogo';
 
@@ -84,15 +85,11 @@ export default async function MisViajesPage() {
                 )}
               </div>
               {puedesCancelar(b.estado) && (
-                <form action={cancelarReserva}>
-                  <input type="hidden" name="booking_id" value={b.id} />
-                  <button
-                    type="submit"
-                    className="text-[13px] text-gris border border-linea rounded-lg px-3 py-1.5 font-semibold active:scale-[.98] transition-transform"
-                  >
-                    Cancelar reserva
-                  </button>
-                </form>
+                <CancelarReservaButton
+                  bookingId={b.id}
+                  fechaViaje={fechaViaje}
+                  precioTotal={b.precio_total}
+                />
               )}
             </div>
           );
