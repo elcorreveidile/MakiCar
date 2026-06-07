@@ -134,6 +134,10 @@ export default async function ConductorPage({
 
   const clienteMap = Object.fromEntries((todosPerfiles ?? []).map(c => [c.id, c]));
 
+  // Sin esta limpieza, una NEXT_PUBLIC_SITE_URL con barra final produce
+  // enlaces con doble barra (.app//unirse) que el cliente no resuelve bien.
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://makicar.app').replace(/\/+$/, '');
+
   return (
     <div className="flex flex-col min-h-screen bg-noche">
       {/* TopBar */}
@@ -160,7 +164,7 @@ export default async function ConductorPage({
 
         {/* ── Enlace de invitación ──────────────────────── */}
         <Seccion titulo="Comparte con tus pasajeros">
-          <InviteLink url={`${process.env.NEXT_PUBLIC_SITE_URL ?? 'https://makicar.app'}/unirse?c=${conductorId}`} />
+          <InviteLink url={`${siteUrl}/unirse?c=${conductorId}`} />
         </Seccion>
 
         {/* ── Mis viajes ────────────────────────────────── */}

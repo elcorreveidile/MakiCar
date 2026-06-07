@@ -4,15 +4,29 @@ import { Resend } from 'resend';
 import { redirect } from 'next/navigation';
 
 const DESTINO = 'informa@blablaele.com';
+const URL_RE  = /https?:\/\/|www\./i;
 
 export async function enviarConsulta(formData: FormData) {
-  const nombre  = (formData.get('nombre')  as string)?.trim();
-  const email   = (formData.get('email')   as string)?.trim();
+  // Honeypot: bots rellenan este campo, humanos no lo ven
+  const honeypot = (formData.get('website') as string) ?? '';
+  if (honeypot) redirect('/conductores/contacto?enviado=1');
+
+  // Tiempo mínimo: menos de 3 s → envío automatizado
+  const ts = parseInt((formData.get('_t') as string) ?? '0', 10);
+  if (!ts || Date.now() - ts < 3000) redirect('/conductores/contacto?enviado=1');
+
+  const nombre   = (formData.get('nombre')   as string)?.trim();
+  const email    = (formData.get('email')    as string)?.trim();
   const telefono = (formData.get('telefono') as string)?.trim();
-  const mensaje = (formData.get('mensaje') as string)?.trim();
+  const mensaje  = (formData.get('mensaje')  as string)?.trim();
 
   if (!nombre || !email || !mensaje) {
     redirect('/conductores/contacto?error=campos');
+  }
+
+  // Bloqueo de URLs en el mensaje (patrón habitual de spam SEO)
+  if (URL_RE.test(mensaje) || URL_RE.test(nombre)) {
+    redirect('/conductores/contacto?enviado=1');
   }
 
   const apiKey = process.env.RESEND_API_KEY;

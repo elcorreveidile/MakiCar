@@ -41,6 +41,10 @@ export default async function ContactoPage({
           </div>
         ) : (
           <form action={enviarConsulta} className="flex flex-col gap-4">
+            {/* Honeypot — oculto para humanos, atractivo para bots */}
+            <input name="website" type="text" style={{ display: 'none' }} tabIndex={-1} autoComplete="off" aria-hidden="true" />
+            {/* Timestamp para detectar envíos instantáneos */}
+            <input name="_t" type="hidden" value={Date.now().toString()} />
             {error && (
               <p className="text-red-400 text-xs text-center bg-[rgba(229,84,75,.1)] border border-[rgba(229,84,75,.2)] rounded-xl px-4 py-3">
                 {error === 'campos'  && 'Por favor, rellena nombre, email y mensaje.'}

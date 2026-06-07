@@ -9,7 +9,7 @@ export async function unirseConConductor(formData: FormData) {
   if (!email || !conductorId) redirect(`/unirse?c=${conductorId}`);
 
   const supabase = await createClient();
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').replace(/\/+$/, '');
 
   const { error } = await supabase.auth.signInWithOtp({
     email,

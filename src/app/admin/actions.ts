@@ -3,10 +3,14 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { notificarBajaConductor, notificarBajaConductorEspecial } from '@/lib/email';
+import { notificarAltaConductor, notificarBajaConductor, notificarBajaConductorEspecial } from '@/lib/email';
 import { getMakicarStripe, PRICE_LAUNCH, PRICE_STANDARD, PRICE_SETUP } from '@/lib/stripe/makicar';
 
 const PLAZAS_LANZAMIENTO = 10;
+
+// La app es gratuita para los conductores hasta el lanzamiento (última semana
+// de agosto 2026): no se les da de alta en Stripe ni se les factura hasta entonces.
+const INICIO_FACTURACION = new Date('2026-08-24T00:00:00Z');
 
 async function verificarSuperadmin() {
   const supabase = await createClient();
@@ -77,9 +81,13 @@ export async function crearConductor(formData: FormData) {
     if (insertError) throw new Error(`Error insertando conductor: ${insertError.message}`);
   }
 
+  // Avisar al conductor de cómo entrar en su panel (no hay invitación automática de Supabase)
+  await notificarAltaConductor({ email, nombre });
+
   // ── Facturación Stripe del operador ────────────────────
+  // (desactivada durante el periodo gratuito previo al lanzamiento)
   const stripe = getMakicarStripe();
-  if (stripe) {
+  if (stripe && Date.now() >= INICIO_FACTURACION.getTime()) {
     try {
       // Contar conductores activos para elegir tarifa lanzamiento o estándar
       const { count } = await admin

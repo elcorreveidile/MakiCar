@@ -3,7 +3,7 @@ import { Resend } from 'resend';
 import { createAdminClient } from './supabase/admin';
 
 const FROM = 'MakiCar <noreply@makicar.app>';
-const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://makicar.app';
+const SITE = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://makicar.app').replace(/\/+$/, '');
 
 function getResend(): Resend | null {
   const key = process.env.RESEND_API_KEY;
@@ -47,6 +47,27 @@ async function send(to: string | null, subject: string, text: string): Promise<v
   } catch {
     // Never break the user flow over an email failure
   }
+}
+
+export async function notificarAltaConductor(p: {
+  email: string;
+  nombre: string;
+}): Promise<void> {
+  const cuerpo = [
+    `¡Bienvenido a MakiCar, ${p.nombre}!`,
+    ``,
+    `Ya tienes acceso a tu panel de conductor. Para entrar:`,
+    ``,
+    `1. Ve a ${SITE}/login`,
+    `2. Escribe tu email (${p.email}) y pulsa "Enviar enlace de acceso"`,
+    `3. Abre el correo que recibirás y entra directamente — sin contraseñas`,
+    ``,
+    `Desde tu panel podrás publicar tus viajes, gestionar reservas y todo lo que necesitas para empezar.`,
+    ``,
+    `Cualquier duda, contáctanos: ${SITE}/conductores/contacto`,
+  ].join('\n');
+
+  await send(p.email, 'Bienvenido a MakiCar — accede a tu panel de conductor', cuerpo);
 }
 
 // ─── Notificaciones al conductor ───────────────────────────────────────────

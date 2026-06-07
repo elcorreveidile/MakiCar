@@ -71,7 +71,7 @@ export async function reservarEnViaje(formData: FormData) {
 
   const precioTotal = precioBase * numPasajeros + suplementos;
 
-  await supabase.from('bookings').insert({
+  const { error: bookingError } = await supabase.from('bookings').insert({
     trip_id:              tripId,
     conductor_id:         trip.conductor_id,
     cliente_id:           user.id,
@@ -90,6 +90,8 @@ export async function reservarEnViaje(formData: FormData) {
     precio_total:         precioTotal,
     forma_pago:           formaPago,
   });
+
+  if (bookingError) redirect(`/reservar/${tripId}?error=1`);
 
   // Descontar plazas con admin client (la política RLS de trips solo permite update al conductor)
   await admin

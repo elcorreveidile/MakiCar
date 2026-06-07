@@ -40,6 +40,12 @@ export default async function ReservarPage({
       <div className="flex-1 px-5 py-5 overflow-y-auto pb-8">
         <h2 className="font-fraunces text-[23px] font-semibold mb-4">Reservar plaza</h2>
 
+        {error && error !== 'ya_reservado' && (
+          <p className="text-red-400 text-xs text-center bg-[rgba(229,84,75,.1)] border border-[rgba(229,84,75,.2)] rounded-xl px-4 py-3 mb-4">
+            No se pudo completar la reserva. Inténtalo de nuevo.
+          </p>
+        )}
+
         {/* Resumen del viaje */}
         <div className="bg-carta border border-ambar/30 rounded-xl p-4 mb-5">
           <div className="flex justify-between items-start mb-1">

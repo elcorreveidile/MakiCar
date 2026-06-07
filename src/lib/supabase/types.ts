@@ -210,7 +210,8 @@ export interface Database {
           id: string;
           cliente_id: string;
           conductor_id: string;
-          booking_id: string;
+          booking_id: string | null;
+          special_request_id: string | null;
           importe: number;
           saldada: boolean;
           created_at: string;
@@ -219,7 +220,8 @@ export interface Database {
           id?: string;
           cliente_id: string;
           conductor_id: string;
-          booking_id: string;
+          booking_id?: string | null;
+          special_request_id?: string | null;
           importe: number;
           saldada?: boolean;
           created_at?: string;
