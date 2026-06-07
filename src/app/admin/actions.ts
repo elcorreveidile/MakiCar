@@ -297,16 +297,32 @@ export async function eliminarConductor(formData: FormData) {
     }
   }
 
-  // Eliminar filas que referencian al conductor (FKs sin CASCADE)
-  await admin.from('bookings').delete().eq('conductor_id', conductorId);
-  await admin.from('trips').delete().eq('conductor_id', conductorId);
-  await admin.from('special_requests').delete().eq('conductor_id', conductorId);
+  // Las deudas referencian conductor_id/booking_id/special_request_id SIN ON DELETE CASCADE:
+  // hay que borrarlas primero o el resto de borrados fallarían por violación de clave foránea
+  // (algo que ocurriría en cuanto el conductor tuviera alguna cancelación con penalización).
+  const { error: deudasError } = await admin.from('deudas').delete().eq('conductor_id', conductorId);
+  if (deudasError) throw new Error(`Error eliminando deudas del conductor: ${deudasError.message}`);
 
-  await admin.from('conductores').delete().eq('id', conductorId);
+  // trips/bookings/special_requests tienen ON DELETE CASCADE desde conductores (migración 005),
+  // pero los borramos explícitamente para detectar cualquier error antes de tocar conductores/profiles.
+  const { error: bookingsError } = await admin.from('bookings').delete().eq('conductor_id', conductorId);
+  if (bookingsError) throw new Error(`Error eliminando reservas del conductor: ${bookingsError.message}`);
+
+  const { error: tripsError } = await admin.from('trips').delete().eq('conductor_id', conductorId);
+  if (tripsError) throw new Error(`Error eliminando viajes del conductor: ${tripsError.message}`);
+
+  const { error: specialError } = await admin.from('special_requests').delete().eq('conductor_id', conductorId);
+  if (specialError) throw new Error(`Error eliminando solicitudes especiales del conductor: ${specialError.message}`);
+
+  const { error: conductorError } = await admin.from('conductores').delete().eq('id', conductorId);
+  if (conductorError) throw new Error(`Error eliminando conductor: ${conductorError.message}`);
 
   if (conductor?.profile_id) {
-    await admin.from('profiles').delete().eq('id', conductor.profile_id);
-    await admin.auth.admin.deleteUser(conductor.profile_id);
+    const { error: profileError } = await admin.from('profiles').delete().eq('id', conductor.profile_id);
+    if (profileError) throw new Error(`Error eliminando perfil del conductor: ${profileError.message}`);
+
+    const { error: userError } = await admin.auth.admin.deleteUser(conductor.profile_id);
+    if (userError) throw new Error(`Error eliminando usuario de Auth: ${userError.message}`);
   }
 
   redirect('/admin');
