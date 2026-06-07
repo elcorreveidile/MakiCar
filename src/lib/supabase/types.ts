@@ -54,6 +54,8 @@ export interface Database {
           makicar_stripe_customer_id: string | null;
           makicar_stripe_subscription_id: string | null;
           makicar_stripe_subscription_status: string;
+          es_profesional: boolean;
+          facturacion_anual: boolean;
           activo: boolean;
           created_at: string;
         };
@@ -67,6 +69,8 @@ export interface Database {
           makicar_stripe_customer_id?: string | null;
           makicar_stripe_subscription_id?: string | null;
           makicar_stripe_subscription_status?: string;
+          es_profesional?: boolean;
+          facturacion_anual?: boolean;
           activo?: boolean;
           created_at?: string;
         };
@@ -78,6 +82,8 @@ export interface Database {
           makicar_stripe_customer_id?: string | null;
           makicar_stripe_subscription_id?: string | null;
           makicar_stripe_subscription_status?: string;
+          es_profesional?: boolean;
+          facturacion_anual?: boolean;
           activo?: boolean;
         };
         Relationships: [];

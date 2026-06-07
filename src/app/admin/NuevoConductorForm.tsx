@@ -43,6 +43,26 @@ export default function NuevoConductorForm() {
           className="w-full bg-[#0D1117] border border-linea rounded-xl px-3 py-2.5 text-blanco text-sm focus:outline-none focus:border-violeta"
         />
       </div>
+
+      <div className="border-t border-linea pt-3">
+        <p className="text-gris text-[10px] mb-2">
+          Categoría de facturación (entra en vigor en enero de 2027 — gratis durante 2026)
+        </p>
+        <label className="flex items-center gap-2 text-blanco text-[13px] mb-2.5">
+          <input type="checkbox" name="es_profesional" className="accent-violeta w-4 h-4" />
+          Conductor profesional (25 €/mes o 200 €/año)
+        </label>
+        <p className="text-gris text-[11px] mb-1.5">Si no se marca, se factura como no profesional (12 €/mes o 120 €/año).</p>
+        <select
+          name="facturacion"
+          defaultValue="mensual"
+          className="w-full bg-[#0D1117] border border-linea rounded-xl px-3 py-2.5 text-blanco text-sm focus:outline-none focus:border-violeta"
+        >
+          <option value="mensual">Facturación mensual</option>
+          <option value="anual">Facturación anual</option>
+        </select>
+      </div>
+
       <button
         type="submit"
         className="w-full bg-violeta text-noche font-bold rounded-xl py-2.5 text-[14px] active:scale-[.98] transition-transform"
