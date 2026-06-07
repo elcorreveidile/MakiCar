@@ -97,10 +97,10 @@ export async function cancelarEspecial(formData: FormData) {
   if (sr.precio_propuesto && menosDe24h) {
     const penalizacion = Math.round(sr.precio_propuesto / 2 * 100) / 100;
     await supabase.from('deudas').insert({
-      cliente_id:   user.id,
-      conductor_id: sr.conductor_id,
-      booking_id:   srId,
-      importe:      penalizacion,
+      cliente_id:         user.id,
+      conductor_id:       sr.conductor_id,
+      special_request_id: srId,
+      importe:            penalizacion,
     });
   }
 
