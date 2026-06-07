@@ -9,7 +9,7 @@ export async function GET(request: Request) {
 
   // Usar el dominio público configurado para evitar bucles en producción
   // cuando el proxy o Vercel cambian el origin de la petición entrante.
-  const base = process.env.NEXT_PUBLIC_SITE_URL ?? origin;
+  const base = (process.env.NEXT_PUBLIC_SITE_URL ?? origin).replace(/\/+$/, '');
 
   if (code) {
     const supabase = await createClient();

@@ -3,7 +3,7 @@ import { Resend } from 'resend';
 import { createAdminClient } from './supabase/admin';
 
 const FROM = 'MakiCar <noreply@makicar.app>';
-const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://makicar.app';
+const SITE = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://makicar.app').replace(/\/+$/, '');
 
 function getResend(): Resend | null {
   const key = process.env.RESEND_API_KEY;
