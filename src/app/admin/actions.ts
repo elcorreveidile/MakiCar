@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { notificarBajaConductor, notificarBajaConductorEspecial } from '@/lib/email';
+import { notificarAltaConductor, notificarBajaConductor, notificarBajaConductorEspecial } from '@/lib/email';
 import { getMakicarStripe, PRICE_LAUNCH, PRICE_STANDARD, PRICE_SETUP } from '@/lib/stripe/makicar';
 
 const PLAZAS_LANZAMIENTO = 10;
@@ -80,6 +80,9 @@ export async function crearConductor(formData: FormData) {
     });
     if (insertError) throw new Error(`Error insertando conductor: ${insertError.message}`);
   }
+
+  // Avisar al conductor de cómo entrar en su panel (no hay invitación automática de Supabase)
+  await notificarAltaConductor({ email, nombre });
 
   // ── Facturación Stripe del operador ────────────────────
   // (desactivada durante el periodo gratuito previo al lanzamiento)
