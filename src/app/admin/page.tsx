@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { redirect } from 'next/navigation';
 import MakiCarLogo from '@/components/MakiCarLogo';
+import AutoRefresh from '@/components/AutoRefresh';
 import { crearConductor, toggleConductor, cerrarSesionAdmin } from './actions';
 import EliminarConductorButton from './EliminarConductorButton';
 
@@ -187,6 +188,7 @@ export default async function AdminPage() {
         <MakiCarLogo />
         <div className="flex items-center gap-3">
           <span className="text-[11px] font-bold text-violeta uppercase tracking-wider">Superadmin</span>
+          <AutoRefresh />
           <form action={cerrarSesionAdmin}>
             <button type="submit" className="text-gris text-[11px] border border-linea rounded-lg px-2.5 py-1 font-semibold active:scale-[.97] transition-transform">
               Salir
