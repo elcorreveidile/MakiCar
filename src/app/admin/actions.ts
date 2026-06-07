@@ -8,6 +8,10 @@ import { getMakicarStripe, PRICE_LAUNCH, PRICE_STANDARD, PRICE_SETUP } from '@/l
 
 const PLAZAS_LANZAMIENTO = 10;
 
+// La app es gratuita para los conductores hasta el lanzamiento (última semana
+// de agosto 2026): no se les da de alta en Stripe ni se les factura hasta entonces.
+const INICIO_FACTURACION = new Date('2026-08-24T00:00:00Z');
+
 async function verificarSuperadmin() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -78,8 +82,9 @@ export async function crearConductor(formData: FormData) {
   }
 
   // ── Facturación Stripe del operador ────────────────────
+  // (desactivada durante el periodo gratuito previo al lanzamiento)
   const stripe = getMakicarStripe();
-  if (stripe) {
+  if (stripe && Date.now() >= INICIO_FACTURACION.getTime()) {
     try {
       // Contar conductores activos para elegir tarifa lanzamiento o estándar
       const { count } = await admin
