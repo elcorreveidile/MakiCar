@@ -92,10 +92,11 @@ export default async function ConductoresPage() {
           ) : (
             <>
               <p className="font-fraunces text-[32px] font-semibold text-blanco leading-none mb-1">
-                Alta gratis
+                Gratis todo 2026
               </p>
               <p className="text-gris text-[13px] mb-3">
-                Sin pago inicial. Solo <span className="text-blanco font-semibold">10 €/mes</span> durante el primer año.
+                Sin alta, sin cuota: no pagas nada durante todo 2026, te unas ahora o cuando la app se lance
+                (previsto para finales de agosto).
               </p>
 
               {/* Contador de plazas */}
@@ -115,36 +116,27 @@ export default async function ConductoresPage() {
               </div>
 
               <div className="border-t border-ambar/20 pt-3">
-                <p className="text-gris text-[12px]">A partir del segundo año: <span className="text-blanco font-semibold">25 €/mes</span> o <span className="text-blanco font-semibold">200 €/año</span></p>
+                <p className="text-gris text-[12px]">A partir de 2027, según tu actividad — ver tabla abajo.</p>
               </div>
             </>
           )}
         </div>
 
-        {/* Pricing normal */}
+        {/* Pricing desde 2027 */}
         <div className="bg-carta border border-linea rounded-2xl p-5 mb-6">
-          <p className="text-gris text-xs uppercase tracking-widest mb-4">Precio habitual</p>
+          <p className="text-gris text-xs uppercase tracking-widest mb-1">Precios a partir de 2027</p>
+          <p className="text-gris text-[12px] mb-4">Durante todo 2026 no se cobra nada. Estas tarifas entran en vigor en enero de 2027.</p>
 
-          <div className="flex gap-3 mb-4">
-            <div className="flex-1 bg-[#0D1117] border border-linea rounded-xl p-4 text-center">
-              <p className="text-gris text-[11px] mb-1">Alta única</p>
-              <p className="font-fraunces text-[28px] font-semibold text-blanco">150<span className="text-[16px]"> €</span></p>
-              <p className="text-gris text-[11px] mt-1">configuración incluida</p>
+          <div className="flex flex-col gap-3">
+            <div className="bg-[#0D1117] border border-linea rounded-xl p-4">
+              <p className="text-blanco text-[13px] font-semibold mb-1">Conductor no profesional</p>
+              <p className="text-gris text-[12px]"><span className="text-blanco font-semibold">12 €/mes</span> o <span className="text-blanco font-semibold">120 €/año</span></p>
             </div>
-            <div className="flex-1 bg-[#0D1117] border border-linea rounded-xl p-4 text-center">
-              <p className="text-gris text-[11px] mb-1">Mensual</p>
-              <p className="font-fraunces text-[28px] font-semibold text-blanco">25<span className="text-[16px]"> €</span></p>
-              <p className="text-gris text-[11px] mt-1">/ mes</p>
+            <div className="bg-[rgba(255,182,39,.06)] border border-[rgba(255,182,39,.2)] rounded-xl p-4">
+              <p className="text-ambar text-[13px] font-bold mb-1">Conductor profesional</p>
+              <p className="text-gris text-[12px]"><span className="text-blanco font-semibold">25 €/mes</span> o <span className="text-blanco font-semibold">200 €/año</span></p>
+              <p className="text-gris text-[11px] mt-1">Según el volumen de viajes que gestiones</p>
             </div>
-          </div>
-
-          {/* Annual highlight */}
-          <div className="bg-[rgba(255,182,39,.06)] border border-[rgba(255,182,39,.2)] rounded-xl p-4 flex justify-between items-center">
-            <div>
-              <p className="text-ambar text-[13px] font-bold">Pago anual</p>
-              <p className="text-gris text-[11px] mt-0.5">2 meses gratis frente al mensual</p>
-            </div>
-            <p className="font-fraunces text-[22px] font-semibold text-ambar">200 €<span className="text-[12px] text-gris font-normal"> /año</span></p>
           </div>
         </div>
 

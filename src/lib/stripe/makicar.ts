@@ -9,7 +9,8 @@ export function getMakicarStripe(): Stripe | null {
   return new Stripe(key);
 }
 
-export const PRICE_LAUNCH    = process.env.MAKICAR_STRIPE_PRICE_LAUNCH    ?? '';
-export const PRICE_STANDARD  = process.env.MAKICAR_STRIPE_PRICE_STANDARD  ?? '';
-export const PRICE_ANNUAL    = process.env.MAKICAR_STRIPE_PRICE_ANNUAL    ?? '';
-export const PRICE_SETUP     = process.env.MAKICAR_STRIPE_PRICE_SETUP     ?? '';
+// Precios desde enero de 2027: profesional (según volumen de viajes) o no profesional
+export const PRICE_PRO_MENSUAL     = process.env.MAKICAR_STRIPE_PRICE_STANDARD       ?? '';
+export const PRICE_PRO_ANUAL       = process.env.MAKICAR_STRIPE_PRICE_ANNUAL         ?? '';
+export const PRICE_NO_PRO_MENSUAL  = process.env.MAKICAR_STRIPE_PRICE_NONPRO_MONTHLY ?? '';
+export const PRICE_NO_PRO_ANUAL    = process.env.MAKICAR_STRIPE_PRICE_NONPRO_ANNUAL  ?? '';

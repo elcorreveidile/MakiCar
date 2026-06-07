@@ -1,5 +1,6 @@
 import { createAdminClient } from '@/lib/supabase/admin';
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
 import { unirseConConductor } from './actions';
 
 export default async function UnirsePage({
@@ -28,7 +29,7 @@ export default async function UnirsePage({
     <div className="min-h-screen bg-noche flex flex-col items-center justify-center px-5">
       <div className="w-full max-w-sm">
         <div className="text-center mb-10">
-          <div className="flex justify-center mb-4">
+          <Link href="/" className="flex justify-center mb-4">
             <svg width="64" height="64" viewBox="0 0 92 92" fill="none" xmlns="http://www.w3.org/2000/svg">
               <rect width="92" height="92" rx="20" fill="#0A0E1A" stroke="#232C3F"/>
               <path d="M20 66 L20 30 L46 56 L72 30 L72 66" stroke="#FFB627" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round"/>
@@ -36,7 +37,7 @@ export default async function UnirsePage({
               <circle cx="72" cy="30" r="6.5" fill="#0A0E1A" stroke="#FFB627" strokeWidth="4"/>
               <circle cx="46" cy="56" r="5" fill="#2BB6A4"/>
             </svg>
-          </div>
+          </Link>
           <h1 className="font-fraunces text-4xl font-semibold">
             Maki<span className="text-ambar">Car</span>
           </h1>

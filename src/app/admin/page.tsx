@@ -267,6 +267,9 @@ export default async function AdminPage() {
                   </div>
                   <p className="text-gris text-[12px]">{c.email ?? authEmailMap[c.profile_id] ?? ''}</p>
                   {perfil?.telefono && <p className="text-gris text-[12px]">{perfil.telefono}</p>}
+                  <p className="text-gris text-[11px] mt-1">
+                    {c.es_profesional ? 'Profesional' : 'No profesional'} · facturación {c.facturacion_anual ? 'anual' : 'mensual'} <span className="opacity-60">(desde 2027)</span>
+                  </p>
                   <div className="flex gap-4 my-2">
                     <span className="text-gris text-[11px]">{tripsCount[c.id] ?? 0} viajes</span>
                     <span className="text-gris text-[11px]">{bookingsCount[c.id] ?? 0} reservas</span>
