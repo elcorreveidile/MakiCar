@@ -6,10 +6,13 @@ import BookingForm from './BookingForm';
 
 export default async function ReservarPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ error?: string }>;
 }) {
   const { id } = await params;
+  const { error } = await searchParams;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
@@ -36,6 +39,12 @@ export default async function ReservarPage({
 
       <div className="flex-1 px-5 py-5 overflow-y-auto pb-8">
         <h2 className="font-fraunces text-[23px] font-semibold mb-4">Reservar plaza</h2>
+
+        {error && (
+          <p className="text-red-400 text-xs text-center bg-[rgba(229,84,75,.1)] border border-[rgba(229,84,75,.2)] rounded-xl px-4 py-3 mb-4">
+            No se pudo completar la reserva. Inténtalo de nuevo.
+          </p>
+        )}
 
         {/* Resumen del viaje */}
         <div className="bg-carta border border-ambar/30 rounded-xl p-4 mb-5">

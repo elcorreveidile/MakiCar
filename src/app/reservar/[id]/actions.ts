@@ -53,7 +53,7 @@ export async function reservarEnViaje(formData: FormData) {
   if (mascota === 'pies')    suplementos += 5;
   else if (mascota === 'asiento') suplementos += precioBase;
 
-  await supabase.from('bookings').insert({
+  const { error: bookingError } = await supabase.from('bookings').insert({
     trip_id:              tripId,
     conductor_id:         trip.conductor_id,
     cliente_id:           user.id,
@@ -71,6 +71,8 @@ export async function reservarEnViaje(formData: FormData) {
     precio_total:         precioBase + suplementos,
     forma_pago:           formaPago,
   });
+
+  if (bookingError) redirect(`/reservar/${tripId}?error=1`);
 
   // Descontar la plaza
   await supabase
