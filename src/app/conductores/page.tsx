@@ -1,9 +1,6 @@
 import Link from 'next/link';
 import MakiCarLogo from '@/components/MakiCarLogo';
 import Footer from '@/components/Footer';
-import { createAdminClient } from '@/lib/supabase/admin';
-
-const PLAZAS_LANZAMIENTO = 10;
 
 const FEATURES = [
   {
@@ -48,16 +45,7 @@ const FEATURES = [
   },
 ];
 
-export default async function ConductoresPage() {
-  const admin = createAdminClient();
-  const { count } = await admin
-    .from('conductores')
-    .select('*', { count: 'exact', head: true })
-    .eq('activo', true);
-  const ocupadas = count ?? 0;
-  const disponibles = Math.max(0, PLAZAS_LANZAMIENTO - ocupadas);
-  const agotadas = disponibles === 0;
-
+export default function ConductoresPage() {
   return (
     <div className="min-h-screen bg-noche flex flex-col">
       {/* Header */}
@@ -76,50 +64,20 @@ export default async function ConductoresPage() {
         </p>
 
         {/* Oferta lanzamiento */}
-        <div className={`border-2 rounded-2xl p-5 mb-4 ${agotadas ? 'bg-[rgba(138,147,166,.06)] border-linea' : 'bg-[rgba(255,182,39,.08)] border-ambar'}`}>
-          <div className="flex justify-between items-start mb-2">
-            <p className={`text-[11px] font-bold uppercase tracking-widest ${agotadas ? 'text-gris' : 'text-ambar'}`}>
-              Oferta de lanzamiento
-            </p>
-            {agotadas
-              ? <span className="text-[10px] font-bold text-gris bg-[rgba(138,147,166,.14)] px-2 py-0.5 rounded-full">Agotada</span>
-              : <span className="text-[10px] font-bold text-noche bg-ambar px-2 py-0.5 rounded-full">10 primeros</span>
-            }
+        <div className="border-2 rounded-2xl p-5 mb-4 bg-[rgba(255,182,39,.08)] border-ambar">
+          <p className="text-[11px] font-bold uppercase tracking-widest text-ambar mb-2">
+            Oferta de lanzamiento
+          </p>
+          <p className="font-fraunces text-[32px] font-semibold text-blanco leading-none mb-1">
+            Gratis todo 2026
+          </p>
+          <p className="text-gris text-[13px] mb-3">
+            Sin alta, sin cuota: no pagas nada durante todo 2026, te unas ahora o cuando la app se lance
+            (previsto para finales de agosto).
+          </p>
+          <div className="border-t border-ambar/20 pt-3">
+            <p className="text-gris text-[12px]">A partir de 2027, según tu actividad — ver tabla abajo.</p>
           </div>
-
-          {agotadas ? (
-            <p className="text-gris text-[14px]">Las plazas de lanzamiento están completas. Consulta el precio habitual.</p>
-          ) : (
-            <>
-              <p className="font-fraunces text-[32px] font-semibold text-blanco leading-none mb-1">
-                Gratis todo 2026
-              </p>
-              <p className="text-gris text-[13px] mb-3">
-                Sin alta, sin cuota: no pagas nada durante todo 2026, te unas ahora o cuando la app se lance
-                (previsto para finales de agosto).
-              </p>
-
-              {/* Contador de plazas */}
-              <div className="mb-3">
-                <div className="flex justify-between items-center mb-1.5">
-                  <span className="text-gris text-[11px]">Plazas disponibles</span>
-                  <span className={`text-[12px] font-bold ${disponibles <= 3 ? 'text-[#E5544B]' : 'text-ambar'}`}>
-                    {disponibles} de {PLAZAS_LANZAMIENTO}
-                  </span>
-                </div>
-                <div className="w-full bg-[#0D1117] rounded-full h-2">
-                  <div
-                    className={`h-2 rounded-full transition-all ${disponibles <= 3 ? 'bg-[#E5544B]' : 'bg-ambar'}`}
-                    style={{ width: `${(disponibles / PLAZAS_LANZAMIENTO) * 100}%` }}
-                  />
-                </div>
-              </div>
-
-              <div className="border-t border-ambar/20 pt-3">
-                <p className="text-gris text-[12px]">A partir de 2027, según tu actividad — ver tabla abajo.</p>
-              </div>
-            </>
-          )}
         </div>
 
         {/* Pricing desde 2027 */}
