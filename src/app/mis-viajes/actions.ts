@@ -1,5 +1,6 @@
 'use server';
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
@@ -18,7 +19,7 @@ export async function cancelarReserva(formData: FormData) {
 
   const { data: booking } = await supabase
     .from('bookings')
-    .select('precio_total, conductor_id, estado, fecha_hora_solicitada, trips(fecha_hora)')
+    .select('precio_total, conductor_id, estado, fecha_hora_solicitada, trip_id, num_pasajeros, trips(fecha_hora, plazas_libres, plazas_totales)')
     .eq('id', bookingId)
     .eq('cliente_id', user.id)
     .single();
@@ -44,6 +45,16 @@ export async function cancelarReserva(formData: FormData) {
     .update({ estado: 'cancelada', cancelada_at: new Date().toISOString(), penalizacion })
     .eq('id', bookingId)
     .eq('cliente_id', user.id);
+
+  // Devolver las plazas al viaje (RLS impide al pasajero actualizar trips)
+  if (booking.trip_id) {
+    const trip = booking.trips as { fecha_hora: string; plazas_libres: number; plazas_totales: number } | null;
+    if (trip) {
+      const admin = createAdminClient();
+      const nuevasLibres = Math.min(trip.plazas_totales, trip.plazas_libres + (booking.num_pasajeros ?? 1));
+      await admin.from('trips').update({ plazas_libres: nuevasLibres }).eq('id', booking.trip_id);
+    }
+  }
 
   if (penalizacion > 0) {
     await supabase.from('deudas').insert({

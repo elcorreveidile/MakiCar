@@ -1,5 +1,6 @@
 'use server';
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { redirect } from 'next/navigation';
 import { calcularPrecio } from '@/lib/tarifas';
 import type { Parada } from '@/lib/tarifas';
@@ -11,15 +12,30 @@ export async function reservarEnViaje(formData: FormData) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  const tripId = formData.get('trip_id') as string;
-  const { data: trip } = await supabase
+  const tripId      = formData.get('trip_id') as string;
+  const numPasajeros = Math.max(1, Math.min(4, parseInt((formData.get('num_pasajeros') as string) || '1', 10)));
+
+  // Leer el trip con admin para evitar problemas de RLS en la actualización posterior
+  const admin = createAdminClient();
+  const { data: trip } = await admin
     .from('trips')
     .select('*')
     .eq('id', tripId)
     .eq('estado', 'abierto')
     .single();
 
-  if (!trip || trip.plazas_libres <= 0) redirect('/');
+  if (!trip || trip.plazas_libres < numPasajeros) redirect('/');
+
+  // Comprobar si el usuario ya tiene una reserva activa en este viaje
+  const { data: reservaExistente } = await supabase
+    .from('bookings')
+    .select('id')
+    .eq('trip_id', tripId)
+    .eq('cliente_id', user.id)
+    .in('estado', ['pendiente', 'confirmada'])
+    .maybeSingle();
+
+  if (reservaExistente) redirect(`/reservar/${tripId}?error=ya_reservado`);
 
   const maleta    = ((formData.get('maleta')     as string) || 'no')       as TipoMaleta;
   const mascota   = ((formData.get('mascota')    as string) || 'no')       as TipoMascota;
@@ -28,7 +44,6 @@ export async function reservarEnViaje(formData: FormData) {
   const dirDestino  = (formData.get('direccion_destino')  as string)?.trim() || null;
   const notas       = (formData.get('notas')              as string)?.trim() || null;
 
-  // Calcular precio para el tramo real del pasajero
   const destinoPasajero = ((formData.get('destino_pasajero') as string) || trip.destino_cabecera) as Parada;
   let precioBase: number;
   let esNoche: boolean;
@@ -47,11 +62,14 @@ export async function reservarEnViaje(formData: FormData) {
     esNoche    = false;
   }
 
+  // precioBase es por pasajero; suplementos se aplican una vez por reserva
   let suplementos = 0;
   if (maleta  === 'maletero') suplementos += 5;
   else if (maleta  === 'asiento') suplementos += precioBase;
   if (mascota === 'pies')    suplementos += 5;
   else if (mascota === 'asiento') suplementos += precioBase;
+
+  const precioTotal = precioBase * numPasajeros + suplementos;
 
   const { error: bookingError } = await supabase.from('bookings').insert({
     trip_id:              tripId,
@@ -63,21 +81,22 @@ export async function reservarEnViaje(formData: FormData) {
     direccion_recogida:   dirRecogida,
     direccion_destino:    dirDestino,
     notas,
+    num_pasajeros:        numPasajeros,
     es_noche:             esNoche,
     precio_base:          precioBase,
     maleta,
     mascota,
     suplementos,
-    precio_total:         precioBase + suplementos,
+    precio_total:         precioTotal,
     forma_pago:           formaPago,
   });
 
   if (bookingError) redirect(`/reservar/${tripId}?error=1`);
 
-  // Descontar la plaza
-  await supabase
+  // Descontar plazas con admin client (la política RLS de trips solo permite update al conductor)
+  await admin
     .from('trips')
-    .update({ plazas_libres: trip.plazas_libres - 1 })
+    .update({ plazas_libres: trip.plazas_libres - numPasajeros })
     .eq('id', tripId);
 
   // Vincular pasajero a este conductor si aún no tiene uno asignado
@@ -93,14 +112,13 @@ export async function reservarEnViaje(formData: FormData) {
       .eq('id', user.id);
   }
 
-  // Notificar al conductor (fire & forget — el fallo de email no bloquea)
   await notificarNuevaReserva({
     conductorId:    trip.conductor_id,
     pasajeroNombre: perfil?.nombre ?? 'Pasajero',
     origen:         trip.origen_cabecera,
     destino:        destinoPasajero,
     fechaHora:      trip.fecha_hora,
-    precioTotal:    precioBase + suplementos,
+    precioTotal,
     maleta,
     mascota,
     notas,

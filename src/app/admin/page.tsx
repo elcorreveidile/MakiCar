@@ -5,8 +5,9 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { redirect } from 'next/navigation';
 import MakiCarLogo from '@/components/MakiCarLogo';
 import AutoRefresh from '@/components/AutoRefresh';
-import { crearConductor, toggleConductor, cerrarSesionAdmin } from './actions';
+import { toggleConductor, cerrarSesionAdmin } from './actions';
 import EliminarConductorButton from './EliminarConductorButton';
+import NuevoConductorForm from './NuevoConductorForm';
 
 const BILLING_LABELS: Record<string, { label: string; color: string }> = {
   active:           { label: 'Al corriente',   color: 'text-ruta bg-[rgba(43,182,164,.14)]' },
@@ -111,11 +112,12 @@ export default async function AdminPage() {
     conductorIds.length > 0
       ? admin.from('bookings').select('conductor_id').in('conductor_id', conductorIds)
       : Promise.resolve({ data: [] as { conductor_id: string }[] }),
-    admin.auth.admin.listUsers({ perPage: 1000 }),
+    profileIds.length > 0
+      ? admin.auth.admin.listUsers({ perPage: 1000 })
+      : Promise.resolve({ data: { users: [] } }),
   ]);
 
   const perfilMap = Object.fromEntries((perfiles ?? []).map(p => [p.id, p]));
-
   const authEmailMap = Object.fromEntries(
     (authUsersResult.data?.users ?? []).map(u => [u.id, u.email ?? ''])
   );
@@ -298,43 +300,7 @@ export default async function AdminPage() {
         {/* ── Nuevo conductor ────────────────────────────── */}
         <Seccion titulo="Nuevo conductor">
           <div className="bg-carta border border-violeta/30 rounded-xl p-4">
-            <form action={crearConductor} className="flex flex-col gap-3">
-              <div>
-                <label className="block text-gris text-[10px] mb-1">Nombre completo</label>
-                <input
-                  type="text"
-                  name="nombre"
-                  required
-                  placeholder="Nombre del conductor"
-                  className="w-full bg-[#0D1117] border border-linea rounded-xl px-3 py-2.5 text-blanco text-sm focus:outline-none focus:border-violeta"
-                />
-              </div>
-              <div>
-                <label className="block text-gris text-[10px] mb-1">Email</label>
-                <input
-                  type="email"
-                  name="email"
-                  required
-                  placeholder="conductor@ejemplo.com"
-                  className="w-full bg-[#0D1117] border border-linea rounded-xl px-3 py-2.5 text-blanco text-sm focus:outline-none focus:border-violeta"
-                />
-              </div>
-              <div>
-                <label className="block text-gris text-[10px] mb-1">Teléfono (opcional)</label>
-                <input
-                  type="tel"
-                  name="telefono"
-                  placeholder="+34 600 000 000"
-                  className="w-full bg-[#0D1117] border border-linea rounded-xl px-3 py-2.5 text-blanco text-sm focus:outline-none focus:border-violeta"
-                />
-              </div>
-              <button
-                type="submit"
-                className="w-full bg-violeta text-noche font-bold rounded-xl py-2.5 text-[14px] active:scale-[.98] transition-transform"
-              >
-                Crear conductor
-              </button>
-            </form>
+            <NuevoConductorForm />
           </div>
         </Seccion>
 

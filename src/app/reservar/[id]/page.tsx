@@ -40,7 +40,7 @@ export default async function ReservarPage({
       <div className="flex-1 px-5 py-5 overflow-y-auto pb-8">
         <h2 className="font-fraunces text-[23px] font-semibold mb-4">Reservar plaza</h2>
 
-        {error && (
+        {error && error !== 'ya_reservado' && (
           <p className="text-red-400 text-xs text-center bg-[rgba(229,84,75,.1)] border border-[rgba(229,84,75,.2)] rounded-xl px-4 py-3 mb-4">
             No se pudo completar la reserva. Inténtalo de nuevo.
           </p>
@@ -79,12 +79,19 @@ export default async function ReservarPage({
           )}
         </div>
 
+        {error === 'ya_reservado' && (
+          <div className="bg-[rgba(229,84,75,.10)] border border-[rgba(229,84,75,.35)] rounded-xl px-4 py-3 mb-4 text-[13px] text-[#E5544B]">
+            Ya tienes una reserva activa en este viaje. Puedes verla en <Link href="/mis-viajes" className="underline font-semibold">Mis viajes</Link>.
+          </div>
+        )}
+
         {trip.plazas_libres > 0 ? (
           <BookingForm trip={{
-            id: trip.id,
-            origen: trip.origen_cabecera,
-            destino: trip.destino_cabecera,
-            fechaHora: trip.fecha_hora,
+            id:           trip.id,
+            origen:       trip.origen_cabecera,
+            destino:      trip.destino_cabecera,
+            fechaHora:    trip.fecha_hora,
+            plazasLibres: trip.plazas_libres,
           }} />
         ) : (
           <div className="text-center py-10">
