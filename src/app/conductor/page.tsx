@@ -12,6 +12,7 @@ import TripForm from './TripForm';
 import TripCard from './TripCard';
 import MakiCarLogo from '@/components/MakiCarLogo';
 import InviteLink from './InviteLink';
+import PassengerList from './PassengerList';
 import AutoRefresh from '@/components/AutoRefresh';
 import InstallPrompt from '@/components/InstallPrompt';
 import Footer from '@/components/Footer';
@@ -133,6 +134,22 @@ export default async function ConductorPage({
     : { data: [] as { id: string; nombre: string; telefono: string | null; avatar_url: string | null; direccion_habitual_recogida: string | null }[] };
 
   const clienteMap = Object.fromEntries((todosPerfiles ?? []).map(c => [c.id, c]));
+
+  // Pasajeros vinculados a este conductor (han usado su enlace de invitación,
+  // tengan ya alguna reserva o no)
+  const { data: perfilesVinculados } = await supabase
+    .from('profiles')
+    .select('id, nombre, telefono, avatar_url, direccion_habitual_recogida')
+    .eq('conductor_id', conductorId);
+
+  const idsConReserva = new Set(idsUnicos);
+  const mapaPasajeros = new Map<string, { id: string; nombre: string; telefono: string | null; avatar_url: string | null; direccion_habitual_recogida: string | null }>();
+  for (const p of [...(todosPerfiles ?? []), ...(perfilesVinculados ?? [])]) {
+    mapaPasajeros.set(p.id, p);
+  }
+  const pasajeros = [...mapaPasajeros.values()]
+    .map(p => ({ ...p, haReservado: idsConReserva.has(p.id) }))
+    .sort((a, b) => a.nombre.localeCompare(b.nombre));
 
   // Sin esta limpieza, una NEXT_PUBLIC_SITE_URL con barra final produce
   // enlaces con doble barra (.app//unirse) que el cliente no resuelve bien.
@@ -357,30 +374,9 @@ export default async function ConductorPage({
         )}
 
         {/* ── Pasajeros ─────────────────────────────────── */}
-        {(todosPerfiles?.length ?? 0) > 0 && (
-          <Seccion titulo={`Pasajeros (${todosPerfiles!.length})`}>
-            {todosPerfiles!.map(p => (
-              <div key={p.id} className="bg-carta border border-linea rounded-xl p-4 mb-3 flex gap-3 items-center">
-                <div className="w-12 h-12 rounded-full bg-[#0D1117] border border-linea overflow-hidden flex-shrink-0 flex items-center justify-center">
-                  {p.avatar_url
-                    // eslint-disable-next-line @next/next/no-img-element
-                    ? <img src={p.avatar_url} alt="" className="w-full h-full object-cover" />
-                    : <span className="text-gris text-2xl">◎</span>
-                  }
-                </div>
-                <div className="min-w-0">
-                  <p className="font-semibold text-[14px] truncate">{p.nombre}</p>
-                  {p.telefono && (
-                    <a href={`tel:${p.telefono}`} className="text-ambar text-[12px] block">
-                      {p.telefono}
-                    </a>
-                  )}
-                  {p.direccion_habitual_recogida && (
-                    <p className="text-gris text-[11px] truncate">{p.direccion_habitual_recogida}</p>
-                  )}
-                </div>
-              </div>
-            ))}
+        {pasajeros.length > 0 && (
+          <Seccion titulo={`Pasajeros (${pasajeros.length})`}>
+            <PassengerList pasajeros={pasajeros} />
           </Seccion>
         )}
 
