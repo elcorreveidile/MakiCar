@@ -1,6 +1,5 @@
 'use server';
 import { createClient } from '@/lib/supabase/server';
-import { createAdminClient } from '@/lib/supabase/admin';
 import { redirect } from 'next/navigation';
 import { calcularPrecio } from '@/lib/tarifas';
 import type { Parada } from '@/lib/tarifas';
@@ -15,9 +14,7 @@ export async function reservarEnViaje(formData: FormData) {
   const tripId      = formData.get('trip_id') as string;
   const numPasajeros = Math.max(1, Math.min(4, parseInt((formData.get('num_pasajeros') as string) || '1', 10)));
 
-  // Leer el trip con admin para evitar problemas de RLS en la actualización posterior
-  const admin = createAdminClient();
-  const { data: trip } = await admin
+  const { data: trip } = await supabase
     .from('trips')
     .select('*')
     .eq('id', tripId)
@@ -93,11 +90,9 @@ export async function reservarEnViaje(formData: FormData) {
 
   if (bookingError) redirect(`/reservar/${tripId}?error=1`);
 
-  // Descontar plazas con admin client (la política RLS de trips solo permite update al conductor)
-  await admin
-    .from('trips')
-    .update({ plazas_libres: trip.plazas_libres - numPasajeros })
-    .eq('id', tripId);
+  // plazas_libres se recalcula automáticamente con trg_sync_plazas_libres al
+  // insertar la reserva: no se descuenta aquí a mano para evitar pisar el valor
+  // del trigger con una foto antigua del viaje (condición de carrera).
 
   // Vincular pasajero a este conductor si aún no tiene uno asignado
   const { data: perfil } = await supabase
